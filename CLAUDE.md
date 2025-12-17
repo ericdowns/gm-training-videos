@@ -18,7 +18,7 @@ This is a standalone WordPress plugin (not a theme include) that creates a compl
 
 ---
 
-## Repository Structure (Planned)
+## Repository Structure
 
 ```
 gm-training-videos (standalone repo)    <-- Master copy - make all changes here
@@ -249,22 +249,60 @@ get_option('training_videos_resource_description'); // Brief description
 
 ## For Claude Code
 
-### When User Says...
+### CRITICAL: Deployment Workflow
+
+**Source of Truth:** Always pull from the master Git repo at `/Users/edowns/Projects/gm-training-videos`
+
+**IMPORTANT:** Always confirm with the user before deploying to a site. Never copy files without explicit approval.
+
+### When User Says "Add training videos plugin"
+
+1. **Confirm first:** "I'll copy the Training Videos plugin from the master repo to this site's plugins folder. Proceed?"
+2. **Wait for approval**
+3. **Then execute:**
+   ```bash
+   cp -r /Users/edowns/Projects/gm-training-videos [site]/wp-content/plugins/training-videos
+   ```
+4. **Remind user:** Plugin needs to be activated in WordPress admin
+
+### When User Says "Update training videos"
+
+1. **Check current version** in the site's `training-videos.php` header
+2. **Check master repo version** at `/Users/edowns/Projects/gm-training-videos/training-videos.php`
+3. **Confirm first:** "Site has v1.1.0, master repo has v1.2.0. I'll replace the plugin with the latest version. Proceed?"
+4. **Wait for approval**
+5. **Then execute:**
+   ```bash
+   rm -rf [site]/wp-content/plugins/training-videos
+   cp -r /Users/edowns/Projects/gm-training-videos [site]/wp-content/plugins/training-videos
+   ```
+6. **Note:** Site settings (resource URL, etc.) are stored in database and won't be affected
+
+### When User Says "Fix/change training videos"
+
+1. **Work in master repo:** `/Users/edowns/Projects/gm-training-videos`
+2. **Make changes**
+3. **Bump version** in `training-videos.php` header
+4. **Commit and push** to GitHub
+5. **Ask user:** "Changes committed to master repo. Do you want me to deploy to any sites?"
+
+### Quick Reference
 
 | Request | Action |
 |---------|--------|
-| "Add feature to training videos" | Work in master repo, bump version |
-| "Fix bug in training videos" | Work in master repo, bump version |
-| "Deploy training videos to [site]" | Copy plugin folder to site |
-| "Update training videos on [site]" | Replace plugin folder with latest |
+| "Add training videos plugin" | **Confirm** → Copy from master repo to site |
+| "Update training videos" | **Confirm** → Replace site copy with master repo |
+| "Add feature to training videos" | Work in master repo, bump version, **ask about deploy** |
+| "Fix bug in training videos" | Work in master repo, bump version, **ask about deploy** |
 | "Configure training videos" | Edit settings in WP admin, not code |
 
 ### Always Remember
 
-1. Check which location you're editing (master repo vs site copy)
-2. Bump version for any code changes
-3. Site settings (resource URL, etc.) are stored in database
-4. Test changes before deploying to client sites
+1. **Always confirm** before copying/replacing plugin files
+2. **Always pull from master repo** at `/Users/edowns/Projects/gm-training-videos`
+3. **Never edit site copies directly** - changes go in master repo
+4. **Bump version** for any code changes
+5. **Site settings** (resource URL, etc.) are stored in database - won't be overwritten
 
 ---
 
