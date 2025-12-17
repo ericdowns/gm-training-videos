@@ -1,0 +1,278 @@
+# CLAUDE.md - Training Videos Plugin
+
+This document provides guidance to Claude Code when working with the Training Videos plugin and explains the Git repository structure for managing it across multiple WordPress sites.
+
+## Plugin Overview
+
+**Name:** Training Videos
+**Version:** 1.1.0
+**Author:** Eric Downs - Technical Director at Grain & Mortar
+**Purpose:** Provide clients with a professional training video library portal using Loom videos
+
+This is a standalone WordPress plugin (not a theme include) that creates a complete training video system with:
+- Custom post type for training videos
+- Loom video embedding with auto-URL conversion
+- Documentation resource card (Google Doc link)
+- Admin bar quick access
+- Self-contained templates (doesn't rely on theme)
+
+---
+
+## Repository Structure (Planned)
+
+```
+gm-training-videos (standalone repo)    <-- Master copy - make all changes here
+       │
+       ├── Site A (copy in plugins/)    <-- Full plugin copy
+       ├── Site B (copy in plugins/)    <-- Can be different version
+       └── Site C (copy in plugins/)    <-- Updated independently
+```
+
+### Important Locations
+
+| Location | Purpose |
+|----------|---------|
+| `/Users/edowns/Projects/gm-training-videos` | **Master repo** - Make all changes here |
+| `site/wp-content/plugins/training-videos/` | **Site copy** - Deployed plugin |
+| `https://github.com/ericdowns/gm-training-videos` | **Remote** - Where master repo is stored |
+
+### Why Not a Submodule?
+
+Unlike dev-tools (which is an include), this is a full WordPress plugin that:
+- Needs to appear in Plugins list
+- Can be activated/deactivated
+- Has its own update workflow
+- May need site-specific settings (stored in wp_options)
+
+Plugins are typically deployed by copying the folder, not submodules.
+
+---
+
+## Golden Rules
+
+1. **Make changes in the master repo** at `/Users/edowns/Projects/gm-training-videos`
+2. **Test changes locally** before committing
+3. **Bump version** when making changes (see Versioning section)
+4. **Deploy to sites** by copying the updated plugin folder
+5. **Site-specific settings** (resource URL, etc.) stay in the database - not in code
+
+---
+
+## Versioning
+
+**CLAUDE CODE: You MUST bump the version every time you make changes.**
+
+Uses [Semantic Versioning](https://semver.org/): `MAJOR.MINOR.PATCH`
+
+| Bump Type | When to Use | Example |
+|-----------|-------------|---------|
+| **PATCH** | Bug fixes, small tweaks, documentation | 1.1.0 → 1.1.1 |
+| **MINOR** | New features, new settings, enhancements | 1.1.1 → 1.2.0 |
+| **MAJOR** | Breaking changes, major rewrites | 1.2.0 → 2.0.0 |
+
+### How to Bump Version
+
+Edit `training-videos.php` header:
+```php
+* Version: 1.1.1  // Update this number
+```
+
+---
+
+## Common Tasks
+
+### Task 1: Make Changes (New Features, Bug Fixes)
+
+```bash
+# 1. Go to the master repo
+cd /Users/edowns/Projects/gm-training-videos
+
+# 2. Make your changes
+
+# 3. Bump version in training-videos.php
+
+# 4. Commit
+git add .
+git commit -m "Description of changes - v1.1.1"
+git push origin main
+```
+
+### Task 2: Deploy to a Site
+
+```bash
+# Option A: Copy files
+cp -r /Users/edowns/Projects/gm-training-videos /path/to/site/wp-content/plugins/training-videos
+
+# Option B: For development, use symlink
+ln -s /Users/edowns/Projects/gm-training-videos /path/to/site/wp-content/plugins/training-videos
+```
+
+### Task 3: Update a Site's Plugin
+
+```bash
+# Remove old version and copy new
+rm -rf /path/to/site/wp-content/plugins/training-videos
+cp -r /Users/edowns/Projects/gm-training-videos /path/to/site/wp-content/plugins/training-videos
+```
+
+---
+
+## File Structure
+
+```
+training-videos/
+├── training-videos.php           # Main plugin file (version, post type, settings)
+├── CLAUDE.md                     # This documentation (for AI)
+├── README.md                     # Installation/usage docs (for humans)
+├── loom-helper.php               # Standalone URL conversion tool
+├── templates/
+│   ├── training-header.php       # Navy header with nav
+│   ├── training-footer.php       # Navy footer with credits
+│   ├── archive-training_videos.php  # Thumbnail grid + resource card
+│   └── single-training_videos.php   # Video player with sidebar
+├── css/
+│   └── training-standalone.css   # DEPRECATED (using theme styles)
+├── create-sample-videos.php      # Sample video generator
+├── check-video-url.php           # URL validation helper
+├── check-videos.php              # Debug helper
+├── create-videos-now.php         # Bulk creation script
+├── flush-rewrite.php             # Permalink flush helper
+├── test-create.php               # Test script
+├── test-query.php                # Query test script
+└── update-videos.php             # Batch update script
+```
+
+---
+
+## Features
+
+### 1. Custom Post Type
+- **Post Type:** `training_videos`
+- **Slug:** `/training-videos/`
+- Loom video embedding
+- Description field (140 characters)
+- Menu ordering for video sequence
+- Excluded from search, NoIndex for SEO
+
+### 2. Template System
+Self-contained templates using California Forever theme colors:
+- Navy header/footer
+- Beige/linen backgrounds
+- Orange accent colors
+- Font Awesome Sharp icons
+
+### 3. Thumbnail Support
+Automatically generates thumbnails from Loom URLs:
+- `https://cdn.loom.com/sessions/thumbnails/[VIDEO_ID]-with-play.gif`
+
+### 4. Documentation Resource
+Plugin settings for Google Doc/external documentation:
+- **Settings:** Training Videos → Settings
+- **Display:** Navy card with document icon above video grid
+- Opens in new tab
+
+### 5. Admin Bar Link
+"Need Help?" dropdown in WordPress admin bar:
+- Watch Training Videos → Archive page
+- Documentation link (if configured)
+
+### 6. Loom URL Auto-Conversion
+Automatically converts share URLs to embed URLs on save:
+```
+https://www.loom.com/share/abc123 → https://www.loom.com/embed/abc123
+```
+
+### 7. Access Control
+Login required by default (can be disabled in templates)
+
+---
+
+## Data Structure
+
+### Post Meta
+```php
+get_post_meta($post_id, '_loom_video_url', true);      // Loom embed URL
+get_post_meta($post_id, '_video_description', true);   // 140 char description
+```
+
+### Plugin Options
+```php
+get_option('training_videos_resource_title');       // Resource title
+get_option('training_videos_resource_url');         // Google Doc URL
+get_option('training_videos_resource_description'); // Brief description
+```
+
+---
+
+## Color Scheme (California Forever)
+
+| Color | Hex | Usage |
+|-------|-----|-------|
+| Navy | #112D40 | Headers, primary text, backgrounds |
+| Stone Blue | #3A5161 | Secondary text |
+| Beige | #FDF9E3 | Light backgrounds |
+| Linen | #EAE7D7 | Borders, card backgrounds |
+| Orange | #FFBC21 | CTAs, active states |
+| Brick | #B15221 | Hover states |
+| Green | #42725F | Success badges |
+
+---
+
+## Changelog
+
+### December 17, 2025 - v1.1.0
+
+**Documentation Resource Feature**
+- Added plugin settings page (Training Videos → Settings)
+- Resource card displays at top of archive (Google Doc link)
+- Navy background, document icon, opens in new tab
+
+**Admin Bar Integration**
+- Added "Need Help?" dropdown to WordPress admin bar
+- Links to Training Library and Documentation resource
+- Video icon, opens in new tab
+
+**YouTube Support Removed**
+- Removed YouTube thumbnail generation
+- Removed YouTube conditional embed in single template
+- Plugin now Loom-only (cleaner, focused)
+
+**Archive Improvements**
+- Changed grid from 3 columns to 4 columns
+- Removed "Watched" badge feature and localStorage tracking
+- Improved resource card spacing
+
+**Meta Box Cleanup**
+- Changed title from "Loom Video URL / Google Doc" to "Loom Video URL"
+
+---
+
+## For Claude Code
+
+### When User Says...
+
+| Request | Action |
+|---------|--------|
+| "Add feature to training videos" | Work in master repo, bump version |
+| "Fix bug in training videos" | Work in master repo, bump version |
+| "Deploy training videos to [site]" | Copy plugin folder to site |
+| "Update training videos on [site]" | Replace plugin folder with latest |
+| "Configure training videos" | Edit settings in WP admin, not code |
+
+### Always Remember
+
+1. Check which location you're editing (master repo vs site copy)
+2. Bump version for any code changes
+3. Site settings (resource URL, etc.) are stored in database
+4. Test changes before deploying to client sites
+
+---
+
+## Setup Checklist for New Site
+
+1. [ ] Copy plugin folder to `wp-content/plugins/training-videos/`
+2. [ ] Activate plugin in WordPress admin
+3. [ ] Go to Training Videos → Settings, configure resource URL
+4. [ ] Add training videos (or create samples)
+5. [ ] Test: Visit `/training-videos/` on frontend
+6. [ ] Test: Check "Need Help?" link in admin bar

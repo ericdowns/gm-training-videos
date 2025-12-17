@@ -1,0 +1,678 @@
+/**
+ * Training Videos Standalone Styles
+ * Independent from theme - Complete styling system
+ * By Grain & Mortar
+ */
+
+/* ============================================
+   CSS Reset & Base Styles
+   ============================================ */
+   
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.training-portal {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #2c3e50;
+    background: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.training-portal a {
+    color: #3498db;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.training-portal a:hover {
+    color: #2980b9;
+}
+
+/* ============================================
+   Header Styles
+   ============================================ */
+
+.training-header {
+    background: #ffffff;
+    border-bottom: 1px solid #e1e8ed;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.training-header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.training-brand {
+    display: flex;
+    align-items: center;
+}
+
+.training-logo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.training-logo i {
+    font-size: 2rem;
+    color: #3498db;
+}
+
+.training-logo h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.training-site-name {
+    font-size: 0.875rem;
+    color: #7f8c8d;
+    display: block;
+}
+
+.training-nav {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.training-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-back-to-site {
+    background: #ecf0f1;
+    color: #2c3e50;
+}
+
+.btn-back-to-site:hover {
+    background: #d5dbdd;
+}
+
+.btn-all-videos {
+    background: #3498db;
+    color: white;
+}
+
+.btn-all-videos:hover {
+    background: #2980b9;
+    color: white;
+}
+
+.btn-admin {
+    background: #95a5a6;
+    color: white;
+}
+
+.btn-admin:hover {
+    background: #7f8c8d;
+    color: white;
+}
+
+/* ============================================
+   Main Content Area
+   ============================================ */
+
+.training-main {
+    flex: 1;
+    max-width: 1400px;
+    width: 100%;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+/* ============================================
+   Footer Styles
+   ============================================ */
+
+.training-footer {
+    background: #2c3e50;
+    color: #ecf0f1;
+    margin-top: auto;
+    padding: 2rem 0 1rem;
+}
+
+.training-footer-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.training-footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+.training-footer a {
+    color: #3498db;
+}
+
+.training-footer a:hover {
+    color: #5dade2;
+}
+
+.training-stats i,
+.training-support i {
+    margin-right: 0.5rem;
+}
+
+.training-user-info {
+    padding-top: 1rem;
+    border-top: 1px solid #34495e;
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+/* ============================================
+   Archive Page Styles
+   ============================================ */
+
+.training-archive-wrapper {
+    background: transparent;
+    padding: 0;
+}
+
+.training-welcome {
+    text-align: center;
+    margin-bottom: 4rem;
+    background: white;
+    padding: 3rem 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.training-welcome h1 {
+    font-size: 3rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.training-welcome .video-count {
+    font-size: 1.5rem;
+    color: #3498db;
+    font-weight: 600;
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+}
+
+.training-welcome p {
+    color: #5a6c7d;
+    max-width: 700px;
+    margin: 1.5rem auto 0;
+    font-size: 1.125rem;
+    line-height: 1.7;
+}
+
+.training-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2.5rem;
+    margin-top: 2rem;
+}
+
+.training-card {
+    background: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.training-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.training-card-video {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    background: #ecf0f1;
+}
+
+.training-card-video iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.training-card-content {
+    padding: 1.25rem;
+}
+
+.training-card h3 {
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+.training-card h3 a {
+    color: inherit;
+}
+
+.training-card h3 a:hover {
+    color: #3498db;
+}
+
+.training-card-description {
+    color: #7f8c8d;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.training-card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #ecf0f1;
+    font-size: 0.875rem;
+    color: #95a5a6;
+}
+
+.training-card-viewed {
+    color: #27ae60;
+    font-weight: 500;
+}
+
+/* ============================================
+   Single Video Page Styles
+   ============================================ */
+
+.training-single-wrapper {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.training-sidebar {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 100px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+.training-sidebar h3 {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.training-sidebar-list {
+    list-style: none;
+}
+
+.training-sidebar-list li {
+    margin-bottom: 0.75rem;
+}
+
+.training-sidebar-list a {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+    color: #2c3e50;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.training-sidebar-list a:hover {
+    background: #ecf0f1;
+    color: #3498db;
+    padding-left: 1rem;
+}
+
+.training-sidebar-list .active a {
+    background: #3498db;
+    color: white;
+    font-weight: 500;
+}
+
+.training-single-content {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.training-breadcrumbs {
+    font-size: 0.875rem;
+    color: #7f8c8d;
+    margin-bottom: 1.5rem;
+}
+
+.training-breadcrumbs a {
+    color: #7f8c8d;
+}
+
+.training-breadcrumbs a:hover {
+    color: #3498db;
+}
+
+.training-single-content h1 {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+}
+
+.training-video-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    margin-bottom: 2rem;
+    background: #000;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.training-video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.training-content {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: #34495e;
+}
+
+.training-navigation {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid #ecf0f1;
+}
+
+.training-nav-prev,
+.training-nav-next,
+.training-nav-all {
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.training-nav-prev,
+.training-nav-next {
+    background: #ecf0f1;
+    color: #2c3e50;
+}
+
+.training-nav-prev:hover,
+.training-nav-next:hover {
+    background: #3498db;
+    color: white;
+}
+
+.training-nav-all {
+    background: #3498db;
+    color: white;
+}
+
+.training-nav-all:hover {
+    background: #2980b9;
+    color: white;
+}
+
+.training-nav-prev.empty,
+.training-nav-next.empty {
+    visibility: hidden;
+}
+
+/* ============================================
+   Floating Action Button (Mobile)
+   ============================================ */
+
+.training-fab {
+    display: none;
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+}
+
+.fab-button {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #3498db;
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.5rem;
+}
+
+.fab-button:hover {
+    background: #2980b9;
+    transform: scale(1.1);
+}
+
+.fab-button.active {
+    transform: rotate(45deg);
+    background: #e74c3c;
+}
+
+.fab-menu {
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.8);
+    transition: all 0.3s ease;
+}
+
+.fab-menu.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+}
+
+.fab-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: white;
+    border-radius: 0.375rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    white-space: nowrap;
+    color: #2c3e50;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.fab-item:hover {
+    background: #3498db;
+    color: white;
+    transform: translateX(-4px);
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 768px) {
+    .training-header-inner {
+        padding: 1rem;
+    }
+    
+    .training-logo h1 {
+        font-size: 1.25rem;
+    }
+    
+    .training-site-name {
+        display: none;
+    }
+    
+    .hide-mobile {
+        display: none;
+    }
+    
+    .training-main {
+        padding: 0 1rem;
+        margin: 1rem auto;
+    }
+    
+    .training-archive-wrapper,
+    .training-single-content {
+        padding: 1.5rem;
+    }
+    
+    .training-welcome h1 {
+        font-size: 2rem;
+    }
+    
+    .training-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .training-single-wrapper {
+        grid-template-columns: 1fr;
+    }
+    
+    .training-sidebar {
+        position: static;
+        max-height: none;
+        margin-bottom: 2rem;
+    }
+    
+    .training-navigation {
+        grid-template-columns: 1fr;
+    }
+    
+    .training-fab {
+        display: block;
+    }
+    
+    .training-footer-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .training-nav {
+        gap: 0.5rem;
+    }
+    
+    .training-nav a {
+        padding: 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .training-nav a span {
+        display: none;
+    }
+    
+    .training-nav a i {
+        font-size: 1.125rem;
+    }
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+
+.text-center { text-align: center; }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+
+/* ============================================
+   Loading States
+   ============================================ */
+
+.training-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    color: #7f8c8d;
+}
+
+.training-loading i {
+    font-size: 2rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+    .training-header,
+    .training-footer,
+    .training-fab,
+    .training-navigation,
+    .training-sidebar {
+        display: none;
+    }
+    
+    .training-single-wrapper {
+        grid-template-columns: 1fr;
+    }
+    
+    .training-single-content {
+        box-shadow: none;
+        padding: 0;
+    }
+}

@@ -1,0 +1,326 @@
+/* @override 
+	http://km-associates.local/wp-content/plugins/training-videos/css/training-videos.css?*
+	https://km-associates.mysites.io/wp-content/plugins/training-videos/css/training-videos.css?*
+	https://aquaria.local/wp-content/plugins/training-videos/css/training-videos.css?*
+	https://kros-strain.local/wp-content/plugins/training-videos/css/training-videos.css?* */
+
+/**, 
+*:before, 
+*:after {
+	box-sizing: border-box;
+	box-sizing: inherit;
+	margin: 0;
+	padding: 0;
+	-moz-osx-font-smoothing: grayscale;
+	-webkit-font-smoothing: antialiased;
+			font-family: 'klarheit_grotesk_regular', sans-serif;
+	font-style: normal;
+
+}
+
+.full:before, 
+.full:after, 
+.content:before, 
+.content:after, 
+.content-full:before, 
+.content-full:after {
+	display: table;
+	content: '';
+}
+
+.full:after, 
+.content:after, 
+.content-full:after {
+	clear: both;
+}
+
+.full {
+	position: relative;
+	    /*border: 1px dashed red;*!/
+	/*	overflow: hidden;*!/
+	width: 100%;
+}
+
+.content {
+	/*	overflow: hidden;*!/
+	width: 100%;
+	max-width: 1440px;
+	margin: 0 auto;
+	padding-right: 2%;
+	padding-left: 2%;
+}
+
+@media all and (max-width: 550px) {
+	.content {
+		padding-right: 3%;
+		padding-left: 3%;
+	}
+}
+
+.content-full {
+	/*		overflow: visible;*!/
+	margin: 0 auto;
+}*/
+
+.section-fullpage-wrapper {
+	display: flex;
+	min-height: 100vh;
+	flex-direction: column;
+	padding-top: 74px;
+}
+
+.section-fullpage-wrapper.transparent_bg {
+	margin-top: 0;
+}
+
+@media (max-width: 950px) {
+	.section-fullpage-wrapper.transparent_bg, 
+	.section-fullpage-wrapper {
+		padding-top: 70px;
+	}
+}
+
+.page-wrapper {
+	-webkit-box-flex: 1;
+	flex: 1;
+	overflow: hidden;
+}
+
+* {
+	/*border: 1px solid #eee;*/
+}
+
+.section_training_videos_single_wrapper {
+	display: flex;
+flex-wrap: wrap;
+justify-content: space-between;
+/*max-width: 800px;*/
+	margin-right: auto;
+	margin-left: auto;
+padding-top: 60px;
+	padding-bottom: 60px;
+	flex-wrap: wrap;
+}
+
+@media (max-width: 950px) {
+	.section_training_videos_single_wrapper {
+	padding-top: 30px;
+
+}
+}
+
+.training_sidebar {
+	flex-basis: 20%;
+	border-right: 1px solid #ddd;
+	padding-right: 20px;
+}
+
+.training_sidebar p {
+		font-size: 15px;
+
+}
+
+@media (max-width: 950px) {
+	.training_sidebar {
+	flex-basis: 100%;
+order: 2;
+		padding-top: 30px;
+	}
+}
+
+.training_sidebar ul  {
+	list-style: none;
+	padding-left: 0;
+}
+
+.training_sidebar ul li {
+	margin-bottom: 15px;
+	font-size: 14px;
+}
+
+.training_sidebar ul li.active a {
+font-weight: 700;
+color: #171717;
+}
+
+.training_sidebar ul li a{
+text-decoration: none;
+}
+
+.training_sidebar ul li a:hover{
+opacity: .4;
+}
+
+.training_sidebar ul li.active a {
+font-weight: 900;	
+}
+
+.section_training_videos_single_inner {
+		flex-basis: 77%;
+}
+
+@media (max-width: 950px) {
+	.section_training_videos_single_inner {
+		flex-basis: 100%;
+}
+}
+
+
+.training_archive_intro h1,
+.section_training_videos_single_inner h1{
+	font-size: 3em;
+}
+
+
+.training_archive_intro p{
+	font-size: 15px;
+}
+
+.training_archive_intro p a{
+	font-weight: 500;
+	text-decoration: underline;
+}
+
+.training_archive_intro p a:hover{
+	color: #171717;
+}
+
+.training_video_wrapper {
+	margin-bottom: 60px;
+	border: 1px solid #ddd;
+}
+
+.training_breadcrumbs {
+	font-size: 13px;
+	padding-bottom: 30px;
+	font-family: 'Arpona';
+font-style: normal;
+font-weight: 400;
+color: #000000;
+}
+
+.training_breadcrumbs a {
+text-decoration: none;	
+}
+
+.training_pagination {
+	display: flex;
+	justify-content: space-between;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	border-top: 1px solid #ddd;
+		border-bottom: 1px solid #ddd;
+flex-wrap: wrap;
+font-family: 'Arpona';
+font-style: normal;
+font-weight: 400;
+font-size: 17px;
+line-height: 153.8%;
+color: #000000;
+}
+
+.pagination_next {
+text-align: right;
+}
+
+.pagination_all {
+	text-align: center;
+}
+  
+  .pagination_item {
+    flex-basis: 30%;
+  }
+  
+  @media (max-width: 950px) {
+  	  .pagination_item {
+    flex-basis: 100%;
+	text-align: center;
+  	  	padding-top: 5px;
+		padding-bottom: 5px;
+  	  }
+  }
+  
+    .pagination_item a {
+text-decoration: none;
+}
+
+    .pagination_item a:hover {
+opacity: .4;
+}
+  
+  .pagination_item.empty {
+    visibility: hidden;
+  }
+  
+  .section_training_videos_all_wrapper {
+  	display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  }
+  
+  .section_training_video_item {
+  	flex-basis: 31.3%;
+  	margin-bottom: 40px;
+  }
+  
+  
+  @media (max-width: 950px) {
+  	  .section_training_video_item {
+  	flex-basis: 48%;
+  	margin-bottom: 40px;
+  }
+  
+  }
+  
+@media (max-width: 650px) {
+	  .section_training_video_item {
+	flex-basis: 100%;
+}
+
+}
+
+  .section_training_video_item h5 a{
+  	font-size: 18px;
+  }
+
+
+.section_training_video_item div iframe {
+	display: block;
+	  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
+
+}
+
+  .section_training_video_item  h5 a:hover{
+opacity: .5;
+  }
+
+.section_video_item_wrapper {
+	margin-bottom: 10px;
+}
+
+.section_training_video_item h5{
+	line-height: 1.2em;
+	margin: 0;
+}
+  
+  .section_training_archive_wrapper {
+/*  	max-width: 1000px;*/
+  	margin-right: auto;
+	margin-left: auto;
+  	padding: 30px 3%;
+	margin-top: 90px;
+  }
+
+@media (max-width: 650px) {
+	  .section_training_archive_wrapper {
+	  	padding-right: 30px;
+		padding-left: 30px;
+	  }
+}
+.training_archive_intro {
+		border-bottom: 1px solid #ddd;
+		padding-bottom: 0;
+		margin-bottom: 40px;
+}
+
+
