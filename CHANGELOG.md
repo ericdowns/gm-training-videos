@@ -4,6 +4,13 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.3.2] — 2026-04-28
+
+### Changed
+- Header redesign — drop the slug subtitle so the brand is a clean single line ("🎓 Training Library"). Bare hamburger ☰ replaced with a labeled "All Videos" button (icon + text). "Back to Site" → "Back to {site_name}" using `bloginfo('name')` so users know where they're going. "Manage" → "Manage Videos". Bumped text contrast (white not beige) and primary button border opacity (0.4 not 0.25) for readability against navy.
+- At <640px, header buttons collapse to icon-only — labels remain in `aria-label` for SR. Above 640px all three buttons show their full labels.
+- Hamburger drawer toggle hidden at lg+ (where the desktop sidebar handles the same role).
+
 ## [1.3.1] — 2026-04-28
 
 ### Changed

@@ -37,38 +37,36 @@ $tv_current_post_id = is_singular( 'training_videos' ) ? get_the_ID() : 0;
 	<header class="bg-navy sticky top-0 z-50">
 		<div class="mx-auto px-6 lg:px-8 py-4" style="max-width: 1400px;">
 			<div class="flex justify-between items-center">
-				<!-- Brand -->
-				<a href="<?php echo esc_url( get_post_type_archive_link( 'training_videos' ) ); ?>" class="flex items-center gap-3 text-white hover:text-orange transition-colors">
-					<i class="fa-sharp fa-solid fa-graduation-cap text-2xl"></i>
-					<div>
-						<span class="text-lg font-medium block leading-tight">Training Library</span>
-						<span class="text-xs text-white/60 block"><?php bloginfo( 'name' ); ?></span>
-					</div>
+				<!-- Brand: single line, no slug subtitle -->
+				<a href="<?php echo esc_url( get_post_type_archive_link( 'training_videos' ) ); ?>" class="tv-brand">
+					<i class="fa-sharp fa-solid fa-graduation-cap" aria-hidden="true"></i>
+					<span>Training Library</span>
 				</a>
 
 				<!-- Navigation -->
 				<nav class="tv-header-nav">
 					<button type="button"
-							class="tv-drawer-toggle"
+							class="tv-header-link tv-drawer-toggle"
 							aria-controls="tv-drawer"
 							aria-expanded="false"
-							aria-label="Open all videos menu">
+							aria-label="All videos">
 						<i class="fa-sharp fa-solid fa-bars" aria-hidden="true"></i>
+						<span class="tv-header-link__label">All Videos</span>
 					</button>
 
 					<a href="<?php echo esc_url( home_url() ); ?>"
 					   class="tv-header-link"
-					   aria-label="Back to main site">
+					   aria-label="Back to <?php bloginfo( 'name' ); ?>">
 						<i class="fa-sharp fa-solid fa-arrow-left" aria-hidden="true"></i>
-						<span>Back to Site</span>
+						<span class="tv-header-link__label">Back to <?php bloginfo( 'name' ); ?></span>
 					</a>
 
 					<?php if ( current_user_can( 'manage_options' ) ) : ?>
 						<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=training_videos' ) ); ?>"
 						   class="tv-header-link tv-header-link--primary"
-						   aria-label="Manage training videos in admin">
+						   aria-label="Manage videos in admin">
 							<i class="fa-sharp fa-solid fa-gear" aria-hidden="true"></i>
-							<span>Manage</span>
+							<span class="tv-header-link__label">Manage Videos</span>
 						</a>
 					<?php endif; ?>
 				</nav>
