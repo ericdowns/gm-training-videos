@@ -4,6 +4,17 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.3.5] — 2026-04-28
+
+### Changed
+- Header buttons collapsed to icon-only (40×40 squares). Labels live in `aria-label` + `title` (hover tooltip) instead of taking visible space. Less clutter, more compact at every viewport.
+- "Back to {site name}" → 🏠 home icon, label "Back to home". The dynamic site-name label was confusing on this dev install ("Back to gm-training-videos-dev") and equally awkward on most client sites.
+- "Manage Videos" → ⚙ icon-only with orange outline (still distinct from the secondary ghost icons).
+- "All Videos" hamburger → ☰ icon-only (visible <lg only).
+
+### Fixed
+- `.tv-back-pill` and other plugin link colors were inheriting `body.* a { color: inherit }` (specificity 0,1,1) and silently overriding the explicit colors I'd set via class. Wrapped that base rule in `:where(...)` to drop its specificity to 0 so every class-based link color wins automatically. No more "stone-blue text on navy pill" rendering.
+
 ## [1.3.4] — 2026-04-28
 
 ### Fixed

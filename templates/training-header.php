@@ -43,30 +43,31 @@ $tv_current_post_id = is_singular( 'training_videos' ) ? get_the_ID() : 0;
 					<span>Training Library</span>
 				</a>
 
-				<!-- Navigation -->
+				<!-- Navigation: icon-only square buttons. Labels live in aria-label
+				     and title (tooltip) so meaning is preserved for SR + cursor users. -->
 				<nav class="tv-header-nav">
 					<button type="button"
-							class="tv-header-link tv-drawer-toggle"
+							class="tv-header-link tv-header-link--icon tv-drawer-toggle"
 							aria-controls="tv-drawer"
 							aria-expanded="false"
-							aria-label="All videos">
+							aria-label="All videos"
+							title="All videos">
 						<i class="fa-sharp fa-solid fa-bars" aria-hidden="true"></i>
-						<span class="tv-header-link__label">All Videos</span>
 					</button>
 
 					<a href="<?php echo esc_url( home_url() ); ?>"
-					   class="tv-header-link"
-					   aria-label="Back to <?php bloginfo( 'name' ); ?>">
-						<i class="fa-sharp fa-solid fa-arrow-left" aria-hidden="true"></i>
-						<span class="tv-header-link__label">Back to <?php bloginfo( 'name' ); ?></span>
+					   class="tv-header-link tv-header-link--icon"
+					   aria-label="Back to home"
+					   title="Back to home">
+						<i class="fa-sharp fa-solid fa-house" aria-hidden="true"></i>
 					</a>
 
 					<?php if ( current_user_can( 'manage_options' ) ) : ?>
 						<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=training_videos' ) ); ?>"
-						   class="tv-header-link tv-header-link--primary"
-						   aria-label="Manage videos in admin">
+						   class="tv-header-link tv-header-link--icon tv-header-link--primary"
+						   aria-label="Manage videos in admin"
+						   title="Manage videos">
 							<i class="fa-sharp fa-solid fa-gear" aria-hidden="true"></i>
-							<span class="tv-header-link__label">Manage Videos</span>
 						</a>
 					<?php endif; ?>
 				</nav>

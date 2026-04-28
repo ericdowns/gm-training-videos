@@ -3,7 +3,7 @@
  * Plugin Name: Training Videos
  * Plugin URI: https://grainandmortar.com
  * Description: A custom plugin made by Grain & Mortar that displays training videos.
- * Version: 1.3.4
+ * Version: 1.3.5
  * Author: Grain & Mortar | Technical Director - Eric Downs (eric@grainandmortar.com)
  * Author URI: https://grainandmortar.com
  * License: Grain & Mortar 
@@ -26,7 +26,7 @@ function training_videos_enqueue_styles() {
     if ( ! is_singular( 'training_videos' ) && ! is_post_type_archive( 'training_videos' ) ) {
         return;
     }
-    $version = '1.3.4';
+    $version = '1.3.5';
     wp_enqueue_style(
         'training-videos-fontawesome',
         'https://use.fontawesome.com/releases/v6.5.1/css/all.css',

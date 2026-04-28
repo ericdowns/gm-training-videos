@@ -77,8 +77,10 @@ body.single-training_videos h1 {
 	}
 }
 
-body.post-type-archive-training_videos a,
-body.single-training_videos a {
+/* :where() gives this rule 0 specificity so any class-based color (e.g.
+   .tv-back-pill, .tv-pager__center) wins automatically. Without the wrap,
+   this selector was 0,1,1 and silently overrode .tv-* link colors. */
+:where(body.post-type-archive-training_videos, body.single-training_videos) a {
 	color: inherit;
 	text-decoration: none;
 }
@@ -441,6 +443,21 @@ body.single-training_videos .tv-header-link i {
 	flex-shrink: 0;
 	line-height: 1;
 	color: #FFFFFF;
+}
+
+/* Icon-only square button variant */
+body.post-type-archive-training_videos .tv-header-link--icon,
+body.single-training_videos .tv-header-link--icon {
+	padding: 0;
+	width: 40px;
+	min-width: 40px;
+	height: 40px;
+	justify-content: center;
+}
+
+body.post-type-archive-training_videos .tv-header-link--icon i,
+body.single-training_videos .tv-header-link--icon i {
+	font-size: 1rem;
 }
 
 body.post-type-archive-training_videos .tv-header-link:hover,
