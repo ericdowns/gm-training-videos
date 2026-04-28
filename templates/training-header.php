@@ -47,7 +47,7 @@ $tv_current_post_id = is_singular( 'training_videos' ) ? get_the_ID() : 0;
 				</a>
 
 				<!-- Navigation -->
-				<nav class="flex gap-2 items-center">
+				<nav class="tv-header-nav">
 					<button type="button"
 							class="tv-drawer-toggle"
 							aria-controls="tv-drawer"
@@ -57,7 +57,7 @@ $tv_current_post_id = is_singular( 'training_videos' ) ? get_the_ID() : 0;
 					</button>
 
 					<a href="<?php echo esc_url( home_url() ); ?>"
-					   class="tv-header-link inline-flex items-center gap-2 px-3 py-2 text-white/80 hover:text-white transition-colors text-sm"
+					   class="tv-header-link"
 					   aria-label="Back to main site">
 						<i class="fa-sharp fa-solid fa-arrow-left" aria-hidden="true"></i>
 						<span>Back to Site</span>
@@ -65,7 +65,7 @@ $tv_current_post_id = is_singular( 'training_videos' ) ? get_the_ID() : 0;
 
 					<?php if ( current_user_can( 'manage_options' ) ) : ?>
 						<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=training_videos' ) ); ?>"
-						   class="tv-header-link inline-flex items-center gap-2 px-3 py-2 bg-white/20 text-white rounded hover:bg-white/30 transition-colors text-sm"
+						   class="tv-header-link tv-header-link--primary"
 						   aria-label="Manage training videos in admin">
 							<i class="fa-sharp fa-solid fa-gear" aria-hidden="true"></i>
 							<span>Manage</span>

@@ -24,22 +24,25 @@ $args       = array(
 );
 $all_videos = get_posts( $args );
 
-// Find previous and next videos
+// Find current index, then wrap PREV/NEXT around so the pager is always present.
+// First video → PREV is last, last video → NEXT is first. Loop never dead-ends.
 $prev_video    = null;
 $next_video    = null;
 $current_index = -1;
+$total_videos  = count( $all_videos );
 
 foreach ( $all_videos as $index => $video ) {
 	if ( $video->ID == $current_video_id ) {
 		$current_index = $index;
-		if ( $index > 0 ) {
-			$prev_video = $all_videos[ $index - 1 ];
-		}
-		if ( $index < count( $all_videos ) - 1 ) {
-			$next_video = $all_videos[ $index + 1 ];
-		}
 		break;
 	}
+}
+
+if ( $total_videos > 1 && $current_index > -1 ) {
+	$prev_index = ( $current_index - 1 + $total_videos ) % $total_videos;
+	$next_index = ( $current_index + 1 ) % $total_videos;
+	$prev_video = $all_videos[ $prev_index ];
+	$next_video = $all_videos[ $next_index ];
 }
 
 // Include header
@@ -173,43 +176,42 @@ include plugin_dir_path( __FILE__ ) . 'training-header.php';
 					</div>
 				<?php endif; ?>
 
-				<!-- Navigation: stacks full-width on mobile, side-by-side at md+ -->
-				<nav class="tv-pager pt-8 border-t border-linen">
-					<?php if ( $prev_video ) : ?>
+				<!--
+					Navigation: PREV ↔ NEXT loop around the library so navigation
+					never dead-ends. "Back to all videos" sits centered between them.
+					Mobile: vertical stack. md+: 3-column row, equal widths.
+				-->
+				<?php if ( $prev_video && $next_video ) : ?>
+					<nav class="tv-pager pt-8 border-t border-linen">
 						<a href="<?php echo esc_url( get_permalink( $prev_video->ID ) ); ?>"
-						   class="tv-pager__item tv-pager__item--prev group flex items-center gap-3 p-4 bg-white border border-linen rounded-lg hover:border-orange transition-all">
-							<span class="tv-pager__icon flex-shrink-0 w-10 h-10 rounded-full bg-linen flex items-center justify-center group-hover:bg-orange transition-colors">
-								<i class="fa-sharp fa-solid fa-arrow-left text-stone-blue group-hover:text-navy transition-colors" aria-hidden="true"></i>
+						   class="tv-pager__item tv-pager__item--prev group">
+							<span class="tv-pager__icon">
+								<i class="fa-sharp fa-solid fa-arrow-left" aria-hidden="true"></i>
 							</span>
-							<span class="tv-pager__text min-w-0">
-								<span class="text-xs text-stone-blue uppercase tracking-wide block">Previous</span>
-								<span class="tv-pager__title text-navy font-medium text-sm leading-tight block"><?php echo esc_html( $prev_video->post_title ); ?></span>
+							<span class="tv-pager__text">
+								<span class="tv-pager__label">Previous</span>
+								<span class="tv-pager__title"><?php echo esc_html( $prev_video->post_title ); ?></span>
 							</span>
 						</a>
-					<?php endif; ?>
 
-					<?php if ( $next_video ) : ?>
+						<a href="<?php echo esc_url( get_post_type_archive_link( 'training_videos' ) ); ?>"
+						   class="tv-pager__center">
+							<i class="fa-sharp fa-solid fa-grid-2" aria-hidden="true"></i>
+							<span>All videos</span>
+						</a>
+
 						<a href="<?php echo esc_url( get_permalink( $next_video->ID ) ); ?>"
-						   class="tv-pager__item tv-pager__item--next group flex items-center gap-3 p-4 bg-white border border-linen rounded-lg hover:border-orange transition-all">
-							<span class="tv-pager__text min-w-0">
-								<span class="text-xs text-stone-blue uppercase tracking-wide block">Next</span>
-								<span class="tv-pager__title text-navy font-medium text-sm leading-tight block"><?php echo esc_html( $next_video->post_title ); ?></span>
+						   class="tv-pager__item tv-pager__item--next group">
+							<span class="tv-pager__text">
+								<span class="tv-pager__label">Next</span>
+								<span class="tv-pager__title"><?php echo esc_html( $next_video->post_title ); ?></span>
 							</span>
-							<span class="tv-pager__icon flex-shrink-0 w-10 h-10 rounded-full bg-linen flex items-center justify-center group-hover:bg-orange transition-colors">
-								<i class="fa-sharp fa-solid fa-arrow-right text-stone-blue group-hover:text-navy transition-colors" aria-hidden="true"></i>
+							<span class="tv-pager__icon">
+								<i class="fa-sharp fa-solid fa-arrow-right" aria-hidden="true"></i>
 							</span>
 						</a>
-					<?php endif; ?>
-				</nav>
-
-				<!-- Back to all videos -->
-				<div class="tv-back-link mt-8 text-center">
-					<a href="<?php echo esc_url( get_post_type_archive_link( 'training_videos' ) ); ?>"
-					   class="tv-back-link__a inline-flex items-center gap-2">
-						<i class="fa-sharp fa-solid fa-arrow-left" aria-hidden="true"></i>
-						Back to all videos
-					</a>
-				</div>
+					</nav>
+				<?php endif; ?>
 
 					<?php
 				endwhile;

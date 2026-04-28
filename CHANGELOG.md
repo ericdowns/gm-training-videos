@@ -4,6 +4,16 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.3.1] — 2026-04-28
+
+### Changed
+- Pager loops around the library — first video's PREV is the last video, last video's NEXT is the first. PREV/NEXT cards always render so navigation never dead-ends.
+- "All videos" link sits centered between PREV and NEXT instead of orphaned below them. 3-column grid at md+, vertical stack on mobile.
+- Header nav reworked. "Back to Site" is now a clean ghost text link (beige → orange on hover). "Manage" is an outlined button (white border on navy → fills with orange + navy text on hover). Drops the washed-out `text-white/80` and `bg-white/20` Tailwind utilities that had no contrast against the navy header.
+
+### Removed
+- Standalone "Back to all videos" link beneath the PREV/NEXT row (folded into the pager's center column).
+
 ## [1.3.0] — 2026-04-28
 
 ### Added
