@@ -56,6 +56,48 @@
 	</script>
 	<?php endif; ?>
 
+	<script>
+	/* Mobile drawer toggle. Hamburger opens, backdrop/close/Escape close. */
+	(function () {
+		var toggle   = document.querySelector( '.tv-drawer-toggle' );
+		var drawer   = document.getElementById( 'tv-drawer' );
+		var backdrop = document.querySelector( '.tv-drawer-backdrop' );
+		if ( ! toggle || ! drawer ) { return; }
+
+		function isOpen() { return drawer.getAttribute( 'aria-hidden' ) === 'false'; }
+
+		function open() {
+			drawer.setAttribute( 'aria-hidden', 'false' );
+			if ( backdrop ) { backdrop.setAttribute( 'aria-hidden', 'false' ); }
+			toggle.setAttribute( 'aria-expanded', 'true' );
+			document.body.classList.add( 'tv-drawer-open' );
+			var firstFocusable = drawer.querySelector( 'a, button' );
+			if ( firstFocusable ) { firstFocusable.focus(); }
+		}
+
+		function close() {
+			drawer.setAttribute( 'aria-hidden', 'true' );
+			if ( backdrop ) { backdrop.setAttribute( 'aria-hidden', 'true' ); }
+			toggle.setAttribute( 'aria-expanded', 'false' );
+			document.body.classList.remove( 'tv-drawer-open' );
+			toggle.focus();
+		}
+
+		toggle.addEventListener( 'click', function () {
+			isOpen() ? close() : open();
+		} );
+
+		var closers = document.querySelectorAll( '[data-tv-drawer-close]' );
+		Array.prototype.forEach.call( closers, function ( el ) {
+			el.addEventListener( 'click', close );
+		} );
+
+		document.addEventListener( 'keydown', function ( e ) {
+			if ( e.key === 'Escape' && isOpen() ) { close(); }
+		} );
+	})();
+	</script>
+
 	<?php
 	// Include WordPress footer scripts
 	wp_footer();

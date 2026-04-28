@@ -1,3 +1,17 @@
+<?php
+// Pull all training videos for the mobile drawer (visible <lg).
+$tv_drawer_videos = get_posts(
+	array(
+		'post_type'      => 'training_videos',
+		'orderby'        => 'menu_order',
+		'order'          => 'ASC',
+		'posts_per_page' => 100,
+		'post_status'    => 'publish',
+	)
+);
+$tv_archive_url    = get_post_type_archive_link( 'training_videos' );
+$tv_current_post_id = is_singular( 'training_videos' ) ? get_the_ID() : 0;
+?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
@@ -29,6 +43,14 @@
 
 				<!-- Navigation -->
 				<nav class="flex gap-2 items-center">
+					<button type="button"
+							class="tv-drawer-toggle"
+							aria-controls="tv-drawer"
+							aria-expanded="false"
+							aria-label="Open all videos menu">
+						<i class="fa-sharp fa-solid fa-bars" aria-hidden="true"></i>
+					</button>
+
 					<a href="<?php echo esc_url( home_url() ); ?>"
 					   class="tv-header-link inline-flex items-center gap-2 px-3 py-2 text-white/80 hover:text-white transition-colors text-sm"
 					   aria-label="Back to main site">
@@ -48,6 +70,44 @@
 			</div>
 		</div>
 	</header>
+
+	<!-- Mobile drawer (visible <lg). Renders globally so archive + single both have it. -->
+	<div class="tv-drawer-backdrop" data-tv-drawer-close aria-hidden="true"></div>
+	<aside id="tv-drawer"
+	       class="tv-drawer"
+	       aria-label="All training videos"
+	       aria-hidden="true">
+		<div class="tv-drawer__head">
+			<h2 class="tv-drawer__title">
+				<i class="fa-sharp fa-solid fa-list" aria-hidden="true"></i>
+				All Videos
+				<span class="tv-drawer__count"><?php echo count( $tv_drawer_videos ); ?></span>
+			</h2>
+			<button type="button" class="tv-drawer__close" data-tv-drawer-close aria-label="Close menu">
+				<i class="fa-sharp fa-solid fa-xmark" aria-hidden="true"></i>
+			</button>
+		</div>
+		<ul class="tv-drawer__list">
+			<?php foreach ( $tv_drawer_videos as $tv_i => $tv_video ) :
+				$tv_is_current = ( $tv_current_post_id === $tv_video->ID ); ?>
+				<li>
+					<a href="<?php echo esc_url( get_permalink( $tv_video->ID ) ); ?>"
+					   class="tv-drawer__item<?php echo $tv_is_current ? ' is-current' : ''; ?>">
+						<span class="tv-drawer__num"><?php echo (int) $tv_i + 1; ?></span>
+						<span class="tv-drawer__label"><?php echo esc_html( $tv_video->post_title ); ?></span>
+					</a>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+		<?php if ( $tv_archive_url ) : ?>
+			<div class="tv-drawer__foot">
+				<a href="<?php echo esc_url( $tv_archive_url ); ?>" class="tv-drawer__archive-link">
+					<i class="fa-sharp fa-solid fa-grid-2" aria-hidden="true"></i>
+					View All Videos
+				</a>
+			</div>
+		<?php endif; ?>
+	</aside>
 
 	<!-- Main Content Wrapper -->
 	<main class="tv-main">

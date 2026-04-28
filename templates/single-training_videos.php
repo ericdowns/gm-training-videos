@@ -98,8 +98,18 @@ include plugin_dir_path( __FILE__ ) . 'training-header.php';
 					the_post();
 					?>
 
+				<!-- Mobile-only "All videos" pill (lg+ uses the sidebar) -->
+				<a href="<?php echo esc_url( get_post_type_archive_link( 'training_videos' ) ); ?>"
+				   class="tv-back-pill">
+					<i class="fa-sharp fa-solid fa-arrow-left" aria-hidden="true"></i>
+					All videos
+				</a>
+
 				<!-- Video Title -->
 				<div class="mb-6">
+					<span class="tv-position">
+						Video <?php echo (int) $current_index + 1; ?> of <?php echo count( $all_videos ); ?>
+					</span>
 					<h1 class="text-navy mb-3"><?php the_title(); ?></h1>
 
 					<?php
