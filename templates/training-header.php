@@ -24,6 +24,11 @@ $tv_current_post_id = is_singular( 'training_videos' ) ? get_the_ID() : 0;
 	<?php
 	// Load WordPress head items including theme styles
 	wp_head();
+
+	// Per-site brand overrides (Settings → Training Videos → Brand Theme)
+	if ( function_exists( 'training_videos_render_brand_styles' ) ) {
+		training_videos_render_brand_styles();
+	}
 	?>
 </head>
 <body <?php body_class( 'bg-beige' ); ?>>

@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once plugin_dir_path( __FILE__ ) . 'inc/loom-helpers.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/brand.php';
 
 
 
@@ -185,6 +186,9 @@ function training_videos_register_settings() {
     register_setting( 'training_videos_settings', 'training_videos_resource_title' );
     register_setting( 'training_videos_settings', 'training_videos_resource_url' );
     register_setting( 'training_videos_settings', 'training_videos_resource_description' );
+    foreach ( training_videos_brand_fields() as $field ) {
+        register_setting( 'training_videos_settings', $field['option'] );
+    }
 }
 add_action( 'admin_init', 'training_videos_register_settings' );
 
@@ -201,12 +205,33 @@ function training_videos_settings_page_html() {
         update_option( 'training_videos_resource_title', sanitize_text_field( $_POST['resource_title'] ?? '' ) );
         update_option( 'training_videos_resource_url', esc_url_raw( $_POST['resource_url'] ?? '' ) );
         update_option( 'training_videos_resource_description', sanitize_text_field( $_POST['resource_description'] ?? '' ) );
+
+        foreach ( training_videos_brand_fields() as $key => $field ) {
+            $raw = $_POST[ 'brand_' . $key ] ?? '';
+            switch ( $field['type'] ) {
+                case 'color':
+                    $clean = training_videos_sanitize_hex_color( $raw );
+                    break;
+                case 'font':
+                    $clean = training_videos_sanitize_font_family( $raw );
+                    break;
+                case 'url':
+                    $clean = esc_url_raw( $raw );
+                    break;
+                default:
+                    $clean = sanitize_text_field( $raw );
+            }
+            update_option( $field['option'], $clean );
+        }
+
         echo '<div class="notice notice-success"><p>Settings saved.</p></div>';
     }
 
     $resource_title = get_option( 'training_videos_resource_title', '' );
     $resource_url = get_option( 'training_videos_resource_url', '' );
     $resource_description = get_option( 'training_videos_resource_description', '' );
+    $brand          = training_videos_get_brand();
+    $brand_fields   = training_videos_brand_fields();
     ?>
     <div class="wrap">
         <h1>Training Videos Settings</h1>
@@ -237,6 +262,36 @@ function training_videos_settings_page_html() {
                         <input type="text" id="resource_description" name="resource_description" value="<?php echo esc_attr( $resource_description ); ?>" class="large-text" placeholder="e.g., Complete guide to all website modules">
                     </td>
                 </tr>
+            </table>
+
+            <hr style="margin: 30px 0;">
+
+            <h2>Brand Theme</h2>
+            <p class="description">
+                Override the default California Forever palette and fonts on this site. Leave any field empty to fall back to the plugin default.
+                Hex colors only (e.g. <code>#272727</code>). Font families take any valid CSS <code>font-family</code> value.
+            </p>
+
+            <table class="form-table">
+                <?php foreach ( $brand_fields as $key => $field ) :
+                    $value = $brand[ $key ];
+                    $id    = 'brand_' . $key;
+                    ?>
+                    <tr>
+                        <th scope="row"><label for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $field['label'] ); ?></label></th>
+                        <td>
+                            <?php if ( 'color' === $field['type'] ) : ?>
+                                <input type="text" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $id ); ?>" value="<?php echo esc_attr( $value ); ?>" class="regular-text" placeholder="#FFBC21" pattern="^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$">
+                                <input type="color" value="<?php echo esc_attr( $value ?: '#000000' ); ?>" onchange="this.previousElementSibling.value=this.value.toUpperCase();" style="vertical-align: middle; margin-left: 8px;">
+                            <?php elseif ( 'url' === $field['type'] ) : ?>
+                                <input type="url" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $id ); ?>" value="<?php echo esc_attr( $value ); ?>" class="large-text" placeholder="https://fonts.googleapis.com/css2?family=Inter">
+                            <?php else : ?>
+                                <input type="text" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $id ); ?>" value="<?php echo esc_attr( $value ); ?>" class="regular-text" placeholder="<?php echo esc_attr( $field['help'] ); ?>">
+                            <?php endif; ?>
+                            <p class="description"><?php echo esc_html( $field['help'] ); ?></p>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
             </table>
 
             <?php submit_button( 'Save Settings' ); ?>
