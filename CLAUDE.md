@@ -222,7 +222,13 @@ get_option('training_videos_resource_description'); // Brief description
 
 ### `/loom` skill
 
-The Claude Code `/loom` skill (at `~/.claude/skills/loom/`) pairs with this plugin for Loom-related workflows that aren't built into the plugin itself:
+The Claude Code `/loom` skill ([source: `ericdowns/claude_skills` repo, `loom/` folder](https://github.com/ericdowns/claude_skills/tree/main/loom) — local: `~/.claude/skills/loom/`) is the **bidirectional companion** to this plugin:
+
+- The skill owns the **Loom side**: transcript fetching, folder listings, AI summaries, oEmbed thumbnail lookups, MCP server setup, cookie auth.
+- This plugin owns the **WordPress side**: the `training_videos` CPT, post meta (`_loom_video_url`, `_video_description`), templates, admin Settings page.
+- The skill's `SKILL.md` has a "Companion: gm-training-videos plugin" section that points back to this repo.
+
+**Workflows the skill provides** (not yet built into the plugin itself):
 
 - **Auto-generate `_video_description` from Loom transcripts** — pull each video's transcript via `get_transcript`, write a one-sentence summary (≤140 chars), update post meta. See `~/.claude/skills/loom/examples/` for the actual scripts used on Xomox 2026-04-28.
 - **Bulk-import Loom folder → WordPress posts** — find videos by name prefix or scrape folder display order, generate WP-CLI import script with correct `menu_order`.
@@ -230,7 +236,7 @@ The Claude Code `/loom` skill (at `~/.claude/skills/loom/`) pairs with this plug
 
 The skill carries its own setup runbook (cookie-based GraphQL auth, ~30-day refresh) and 60 tools across reads/writes on videos, folders, transcripts, comments, and library mgmt.
 
-**Future plugin work that depends on this skill is tracked as GitHub issues** on this repo (`ericdowns/gm-training-videos`). See the open issues list for current candidates.
+**Future plugin work that depends on this skill is tracked as GitHub issues** on this repo (`ericdowns/gm-training-videos`). See the [open issues list](https://github.com/ericdowns/gm-training-videos/issues?q=is%3Aopen+is%3Aissue+label%3Acard) for current candidates — most current cards graduate skill workflows into native plugin features.
 
 ## Changelog
 
