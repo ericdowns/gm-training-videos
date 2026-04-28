@@ -230,9 +230,10 @@ The Claude Code `/loom` skill ([source: `ericdowns/claude_skills` repo, `loom/` 
 
 **Workflows the skill provides** (not yet built into the plugin itself):
 
-- **Auto-generate `_video_description` from Loom transcripts** — pull each video's transcript via `get_transcript`, write a one-sentence summary (≤140 chars), update post meta. See `~/.claude/skills/loom/examples/` for the actual scripts used on Xomox 2026-04-28.
+- **Pull producer-authored `_video_description` from Loom (PRIMARY)** — Brooke writes a description in Loom (Edit Video → Description textarea, the standard `RegularUserVideo.description` field). The plugin reads it via `get_description` and writes it to post meta. No AI, no synthesis, verbatim copy. Tracked as a card on this repo.
 - **Bulk-import Loom folder → WordPress posts** — find videos by name prefix or scrape folder display order, generate WP-CLI import script with correct `menu_order`.
 - **Pull MP4 download URLs, transcripts, captions** — for content that needs to live outside the plugin (newsletters, support docs, etc.).
+- **Transcript-based description synthesis (FALLBACK)** — only when Brooke hasn't written a Loom description and the team needs something now. Reads the transcript, synthesizes a 1-sentence summary. See `~/.claude/skills/loom/examples/` for the actual scripts used on Xomox 2026-04-28 before the producer-driven path was set up.
 
 The skill carries its own setup runbook (cookie-based GraphQL auth, ~30-day refresh) and 60 tools across reads/writes on videos, folders, transcripts, comments, and library mgmt.
 
