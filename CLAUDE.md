@@ -5,7 +5,7 @@ This document provides guidance to Claude Code when working with the Training Vi
 ## Plugin Overview
 
 **Name:** Training Videos
-**Version:** 1.1.0
+**Version:** 1.1.1
 **Author:** Eric Downs - Technical Director at Grain & Mortar
 **Purpose:** Provide clients with a professional training video library portal using Loom videos
 
@@ -218,7 +218,29 @@ get_option('training_videos_resource_description'); // Brief description
 
 ---
 
+## Companion Tools
+
+### `/loom` skill
+
+The Claude Code `/loom` skill (at `~/.claude/skills/loom/`) pairs with this plugin for Loom-related workflows that aren't built into the plugin itself:
+
+- **Auto-generate `_video_description` from Loom transcripts** — pull each video's transcript via `get_transcript`, write a one-sentence summary (≤140 chars), update post meta. See `~/.claude/skills/loom/examples/` for the actual scripts used on Xomox 2026-04-28.
+- **Bulk-import Loom folder → WordPress posts** — find videos by name prefix or scrape folder display order, generate WP-CLI import script with correct `menu_order`.
+- **Pull MP4 download URLs, transcripts, captions** — for content that needs to live outside the plugin (newsletters, support docs, etc.).
+
+The skill carries its own setup runbook (cookie-based GraphQL auth, ~30-day refresh) and 60 tools across reads/writes on videos, folders, transcripts, comments, and library mgmt.
+
+**Future plugin work that depends on this skill is tracked as GitHub issues** on this repo (`ericdowns/gm-training-videos`). See the open issues list for current candidates.
+
 ## Changelog
+
+### April 28, 2026 - v1.1.1
+
+**Thumbnail Fix (Workspace-Private Videos)**
+- Loom's plain-ID thumbnail URL (`{id}-with-play.gif`) returns HTTP 403 for workspace-private videos, so cards rendered as blank placeholders for any client with private Loom content.
+- Replaced with oEmbed-based fetch: `wp_remote_get('https://www.loom.com/v1/oembed?url=...')` returns a hash-suffixed thumbnail URL (`{id}-{hash}.gif`) that's publicly accessible regardless of video privacy.
+- Cached via WP transient: 7 days on success, 5 minutes on failure (so a stale 403 doesn't stick).
+- No template/markup changes — drop-in replacement of `get_video_thumbnail_url()` in `archive-training_videos.php`.
 
 ### December 17, 2025 - v1.1.0
 
