@@ -4,6 +4,11 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.3.6] — 2026-04-28
+
+### Fixed
+- Welcome paragraph on the archive (`max-w-2xl mx-auto`) was pinned to the left edge instead of centered, and the H1's `mb-4` was producing 0 margin. Same specificity-bug pattern as 1.3.3/1.3.5: the base h1–h4 + p margin resets had selectors `body.post-type-archive-training_videos h1` (0,1,1) which beat every utility class (0,1,0), so `mx-auto`, `mb-*`, `mt-*` all silently failed on those elements. Wrapped both resets in `:where(...)` to drop specificity to 0 so utilities win automatically. Card #27.
+
 ## [1.3.5] — 2026-04-28
 
 ### Changed

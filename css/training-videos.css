@@ -51,14 +51,10 @@ body.single-training_videos *::after {
 	box-sizing: border-box;
 }
 
-body.post-type-archive-training_videos h1,
-body.post-type-archive-training_videos h2,
-body.post-type-archive-training_videos h3,
-body.post-type-archive-training_videos h4,
-body.single-training_videos h1,
-body.single-training_videos h2,
-body.single-training_videos h3,
-body.single-training_videos h4 {
+/* :where() drops specificity to 0,0,0 so utility classes (.mb-4, .mt-2, etc.)
+   win. Without it, the 0,1,1 selector silently overrides every margin utility
+   on h1–h4. Same pattern as the `a` reset below. */
+:where(body.post-type-archive-training_videos, body.single-training_videos) :where(h1, h2, h3, h4) {
 	margin: 0;
 	font-weight: 600;
 	line-height: 1.2;
@@ -85,8 +81,8 @@ body.single-training_videos h1 {
 	text-decoration: none;
 }
 
-body.post-type-archive-training_videos p,
-body.single-training_videos p {
+/* :where() so .mx-auto, .mb-*, .mt-* utilities win on <p>. */
+:where(body.post-type-archive-training_videos, body.single-training_videos) p {
 	margin: 0;
 }
 
