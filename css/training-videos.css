@@ -240,6 +240,7 @@ body.single-training_videos iframe {
 .bg-navy\/20 { background-color: rgba(17, 45, 64, 0.20); }
 .bg-white\/10 { background-color: rgba(255, 255, 255, 0.10); }
 .bg-white\/20 { background-color: rgba(255, 255, 255, 0.20); }
+.bg-white\/30 { background-color: rgba(255, 255, 255, 0.30); }
 .bg-beige\/50 { background-color: rgba(253, 249, 227, 0.50); }
 .bg-beige\/70 { background-color: rgba(253, 249, 227, 0.70); }
 
@@ -325,6 +326,7 @@ a:hover .group-hover\:scale-105,
 
 a.hover\:bg-stone-blue:hover { background-color: var(--tv-color-stone-blue); }
 a.hover\:bg-white\/20:hover { background-color: rgba(255, 255, 255, 0.20); }
+a.hover\:bg-white\/30:hover { background-color: rgba(255, 255, 255, 0.30); }
 a.hover\:text-orange:hover { color: var(--tv-color-orange); }
 a.hover\:text-white:hover { color: var(--tv-color-white); }
 a.hover\:text-brick:hover { color: var(--tv-color-brick); }
@@ -359,6 +361,25 @@ a.hover\:bg-beige\/50:hover { background-color: rgba(253, 249, 227, 0.50); }
 	max-width: 22rem;
 	margin-left: auto;
 	margin-right: auto;
+}
+
+/* ---------------------------------------------------------- */
+/* Header nav links — keep labels visible at every viewport   */
+/* ---------------------------------------------------------- */
+
+.tv-header-link {
+	min-height: 44px; /* ≥44px tap target on mobile */
+	white-space: nowrap;
+}
+
+/* On very narrow viewports the brand block + 2 nav buttons can crowd. Tighten
+   padding so labels stay legible without overflowing. */
+@media (max-width: 480px) {
+	.tv-header-link {
+		padding-left: 0.625rem;
+		padding-right: 0.625rem;
+		font-size: 0.8125rem;
+	}
 }
 
 /* ---------------------------------------------------------- */
