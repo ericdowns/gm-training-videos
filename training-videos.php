@@ -3,7 +3,7 @@
  * Plugin Name: Training Videos
  * Plugin URI: https://grainandmortar.com
  * Description: A custom plugin made by Grain & Mortar that displays training videos.
- * Version: 1.1.1
+ * Version: 1.1.2
  * Author: Grain & Mortar | Technical Director - Eric Downs (eric@grainandmortar.com)
  * Author URI: https://grainandmortar.com
  * License: Grain & Mortar 
@@ -16,14 +16,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 
-// Enqueue CSS file for custom post type
-// NOTE: Standalone CSS is now loaded directly in the templates
-// This is kept for backwards compatibility if needed
+// Enqueue self-contained styles + Font Awesome only on plugin pages.
+// The CSS is theme-independent so the plugin renders correctly regardless of
+// the parent theme. Brand-theming card #4 will overlay CSS variables on top.
 function training_videos_enqueue_styles() {
-    // Disabled - using standalone template system
-    // if ( is_singular( 'training_videos' ) || is_post_type_archive( 'training_videos' ) ) {
-    //     wp_enqueue_style( 'training_videos_styles', plugins_url( 'css/training-videos.css', __FILE__ ) );
-    // }
+    if ( ! is_singular( 'training_videos' ) && ! is_post_type_archive( 'training_videos' ) ) {
+        return;
+    }
+    $version = '1.1.2';
+    wp_enqueue_style(
+        'training-videos-fontawesome',
+        'https://use.fontawesome.com/releases/v6.5.1/css/all.css',
+        array(),
+        '6.5.1'
+    );
+    wp_enqueue_style(
+        'training-videos',
+        plugins_url( 'css/training-videos.css', __FILE__ ),
+        array( 'training-videos-fontawesome' ),
+        $version
+    );
 }
 add_action( 'wp_enqueue_scripts', 'training_videos_enqueue_styles' );
 

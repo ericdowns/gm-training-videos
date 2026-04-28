@@ -79,6 +79,32 @@ Edit `training-videos.php` header:
 
 ---
 
+## Local Dev Site
+
+A dedicated Local by Flywheel site exists for iterating on this plugin without touching any client install:
+
+- **URL:** http://gm-training-videos-dev.local
+- **Path:** `/Users/edowns/Local Sites/gm-training-videos-dev/`
+- **Plugin install:** **symlink** from `~/Projects/gm-training-videos` to the site's `wp-content/plugins/training-videos/`. Edits to the master repo are live in the demo immediately — no `cp -r` step.
+- **WP admin:** `admin` / `admin` at `/wp-login.php`
+- **Seeded:** 3 sample training videos + resource URL configured for testing the archive layout.
+
+**WP-CLI usage** — Local sites use a non-standard MySQL socket. The new site's `wp-config.php` was patched to use `localhost:/Users/edowns/Library/Application Support/Local/run/J2ZShdexvw/mysql/mysqld.sock` so `wp` from `/opt/homebrew/bin/wp` works against it via `--path`. If you spin up a different demo, look up the run/ID in `~/Library/Application Support/Local/sites.json` and patch `DB_HOST` the same way.
+
+**To verify changes in the browser:** see the chrome-devtools workflow in the user's CLAUDE.md (port 9233). The login template requires `is_user_logged_in()`, so log in first via `/wp-login.php`.
+
+---
+
+## Deployed Sites
+
+Source of truth: [`docs/SITES.md`](docs/SITES.md).
+
+That file lists every client site running this plugin, the installed version, and any per-site notes (rebranded forks, non-Local hosts, etc.). It's hand-maintained from filesystem scans of `~/Local Sites/*/app/public/wp-content/plugins/training-videos/`.
+
+**This is interim.** The license-key + central-dashboard cards on this repo (see Open Cards below) replace this file with a live registry once they land. Until then: when you `cp -r` the plugin to a new site or update an existing one, update `docs/SITES.md` in the same commit.
+
+---
+
 ## Common Tasks
 
 ### Task 1: Make Changes (New Features, Bug Fixes)
@@ -131,7 +157,10 @@ training-videos/
 │   ├── archive-training_videos.php  # Thumbnail grid + resource card
 │   └── single-training_videos.php   # Video player with sidebar
 ├── css/
-│   └── training-standalone.css   # DEPRECATED (using theme styles)
+│   └── training-videos.css       # Plugin styles — enqueue currently disabled (see training-videos.php:25). Re-enable when brand-theming card #4 lands.
+├── docs/
+│   ├── README.md                 # Master index for plugin docs
+│   └── SITES.md                  # Deployment registry — every site running this plugin
 ├── create-sample-videos.php      # Sample video generator
 ├── check-video-url.php           # URL validation helper
 ├── check-videos.php              # Debug helper
@@ -238,6 +267,26 @@ The Claude Code `/loom` skill ([source: `ericdowns/claude_skills` repo, `loom/` 
 The skill carries its own setup runbook (cookie-based GraphQL auth, ~30-day refresh) and 60 tools across reads/writes on videos, folders, transcripts, comments, and library mgmt.
 
 **Future plugin work that depends on this skill is tracked as GitHub issues** on this repo (`ericdowns/gm-training-videos`). See the [open issues list](https://github.com/ericdowns/gm-training-videos/issues?q=is%3Aopen+is%3Aissue+label%3Acard) for current candidates — most current cards graduate skill workflows into native plugin features.
+
+---
+
+## Open Cards / Backlog
+
+Plugin work is tracked as GitHub Issue cards on this repo using the `/cards` workflow. Drop new ones with `card on gm-training-videos: …` from any session.
+
+**Major in-flight initiatives:**
+
+| Theme | Card(s) | What it unlocks |
+|---|---|---|
+| **Brand theming separation** | [#4](https://github.com/ericdowns/gm-training-videos/issues/4) | Drive colors and fonts from a per-site Settings tab so we stop forking templates per client (Xomox is the smoking gun). |
+| **License key + phone-home registration** | [#9](https://github.com/ericdowns/gm-training-videos/issues/9) | Each install reports its URL + version + license to a central server. Lets us see who has it activated and revoke when contracts end. |
+| **Central deployment dashboard** | [#10](https://github.com/ericdowns/gm-training-videos/issues/10) | Web app that consumes the phone-home pings — shows every site, version, last-seen, license status. Push-update button per site. |
+| **GitHub Releases + native WP update flow** | [#11](https://github.com/ericdowns/gm-training-videos/issues/11) | Tag-driven releases with auto-zip; plugin uses `plugin-update-checker` so WP's "Update available" banner just works. |
+| **GitHub repo hardening** | [#12](https://github.com/ericdowns/gm-training-videos/issues/12) | LICENSE, CHANGELOG.md, issue/PR templates, disable Wiki + classic Projects, set delete-branch-on-merge. |
+
+**Quick links:**
+- [All open cards](https://github.com/ericdowns/gm-training-videos/issues?q=is%3Aopen+is%3Aissue+label%3Acard)
+- [Awaiting review (PRs to merge)](https://github.com/ericdowns/gm-training-videos/issues?q=is%3Aopen+is%3Aissue+label%3Acard+label%3Aawaiting-review)
 
 ## Changelog
 
