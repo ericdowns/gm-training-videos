@@ -4,7 +4,22 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
-## [1.2.0] — 2026-04-28
+## [1.3.0] — 2026-04-28
+
+### Added
+- Brand Theme settings — override the CalForever palette (page bg, headings, text, accent, accent hover, border, card bg) and fonts (heading family, body family, font import URL) per site, no template forks needed — #4
+- Repo hardening: LICENSE, CHANGELOG.md, `.github/ISSUE_TEMPLATE/`, `.github/PULL_REQUEST_TEMPLATE.md` — #12
+- Loom thumbnails sideloaded to Media Library on save (cron-driven, never blocks the front end). Templates serve local URLs once cached — #3
+- Auto-populate `_video_description` from Loom oEmbed `description` field on save (only when post meta is empty — never overwrites manual edits) — #7
+- "Loom Data" sidebar meta box on the edit screen with Refresh description + Refresh thumbnail buttons — #6, #8
+- Bulk actions on the training_videos list table: "Pull descriptions from Loom" and "Re-cache thumbnails from Loom" — #2
+
+### Changed
+- Refactored `inc/loom-helpers.php` around a shared `training_videos_fetch_loom_oembed()` cache so thumbnail + description paths share the same network round-trip
+- Repo settings: Wiki disabled, delete-branch-on-merge enabled
+
+### Blocked
+- Bulk import from Loom folder URL (#5) — requires authenticated Loom folder API; oEmbed only covers single videos. Will land once card #10 (central dashboard) provides server-side Loom auth.
 
 ### Added
 - Self-contained CSS that renders correctly on any client theme (no more naked HTML when the parent theme lacks brand tokens)

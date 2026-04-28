@@ -230,6 +230,56 @@ if ( ! function_exists( 'training_videos_run_thumbnail_cache_handler' ) ) {
 	add_action( 'training_videos_run_thumbnail_cache', 'training_videos_run_thumbnail_cache_handler' );
 }
 
+/**
+ * Hook save_post: pull the producer-authored description from Loom oEmbed
+ * and write it to post meta — but only if the description meta is empty.
+ * Card #7. Never overwrites manual edits.
+ */
+if ( ! function_exists( 'training_videos_autopopulate_description' ) ) {
+	function training_videos_autopopulate_description( $post_id, $post, $update ) {
+		if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
+			return;
+		}
+		$existing = trim( (string) get_post_meta( $post_id, '_video_description', true ) );
+		if ( $existing !== '' ) {
+			return; // Don't overwrite producer/editor-authored content.
+		}
+		$video_url = get_post_meta( $post_id, '_loom_video_url', true );
+		if ( ! $video_url ) {
+			return;
+		}
+		$description = training_videos_get_loom_description( $video_url );
+		if ( $description ) {
+			update_post_meta( $post_id, '_video_description', $description );
+		}
+	}
+	add_action( 'save_post_training_videos', 'training_videos_autopopulate_description', 25, 3 );
+}
+
+/**
+ * Force-refresh the description from Loom oEmbed regardless of what's
+ * currently in the post meta. Used by the "Refresh from Loom" button (card
+ * #8) and the bulk action (card #2).
+ *
+ * @param int $post_id training_videos post ID
+ * @return string|false Updated description on success, false otherwise
+ */
+if ( ! function_exists( 'training_videos_refresh_description_from_loom' ) ) {
+	function training_videos_refresh_description_from_loom( $post_id ) {
+		$post_id   = (int) $post_id;
+		$video_url = get_post_meta( $post_id, '_loom_video_url', true );
+		if ( ! $video_url ) {
+			return false;
+		}
+		$description = training_videos_get_loom_description( $video_url, true );
+		if ( $description === '' ) {
+			return false;
+		}
+		update_post_meta( $post_id, '_video_description', $description );
+		return $description;
+	}
+}
+
 if ( ! function_exists( 'get_video_thumbnail_url' ) ) {
 	/**
 	 * Backwards-compat alias. Old code (and the archive template before #15)

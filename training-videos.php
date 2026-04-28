@@ -3,7 +3,7 @@
  * Plugin Name: Training Videos
  * Plugin URI: https://grainandmortar.com
  * Description: A custom plugin made by Grain & Mortar that displays training videos.
- * Version: 1.2.0
+ * Version: 1.3.0
  * Author: Grain & Mortar | Technical Director - Eric Downs (eric@grainandmortar.com)
  * Author URI: https://grainandmortar.com
  * License: Grain & Mortar 
@@ -26,7 +26,7 @@ function training_videos_enqueue_styles() {
     if ( ! is_singular( 'training_videos' ) && ! is_post_type_archive( 'training_videos' ) ) {
         return;
     }
-    $version = '1.2.0';
+    $version = '1.3.0';
     wp_enqueue_style(
         'training-videos-fontawesome',
         'https://use.fontawesome.com/releases/v6.5.1/css/all.css',
@@ -467,6 +467,229 @@ function save_training_video_description_meta( $post_id ) {
     }
 }
 add_action( 'save_post_training_videos', 'save_training_video_description_meta' );
+
+
+// ============================================================================
+// LOOM DATA META BOX — refresh buttons (cards #6, #8)
+// ============================================================================
+
+function training_videos_add_loom_data_meta_box() {
+    add_meta_box(
+        'training_video_loom_data',
+        'Loom Data',
+        'training_videos_loom_data_meta_box_html',
+        'training_videos',
+        'side',
+        'default'
+    );
+}
+add_action( 'add_meta_boxes', 'training_videos_add_loom_data_meta_box' );
+
+function training_videos_loom_data_meta_box_html( $post ) {
+    $video_url      = get_post_meta( $post->ID, '_loom_video_url', true );
+    $thumb_local    = get_post_meta( $post->ID, '_loom_thumbnail_url', true );
+    $thumb_attach   = (int) get_post_meta( $post->ID, '_loom_thumbnail_attachment_id', true );
+    $description    = get_post_meta( $post->ID, '_video_description', true );
+
+    if ( ! $video_url ) {
+        echo '<p style="color: #666;">Add a Loom URL above to enable Loom data sync.</p>';
+        return;
+    }
+
+    $loom_id = training_videos_extract_loom_id( $video_url );
+    $oembed  = $loom_id ? training_videos_fetch_loom_oembed( $video_url ) : false;
+
+    // Notice from a recent refresh action
+    if ( isset( $_GET['tv_loom_msg'] ) ) {
+        $msg = sanitize_text_field( wp_unslash( $_GET['tv_loom_msg'] ) );
+        $is_err = isset( $_GET['tv_loom_err'] );
+        printf(
+            '<div class="notice notice-%s inline" style="margin: 0 0 12px 0; padding: 6px 10px;"><p style="margin: 0;">%s</p></div>',
+            $is_err ? 'error' : 'success',
+            esc_html( $msg )
+        );
+    }
+
+    ?>
+    <p style="margin: 0 0 8px 0; font-size: 12px; color: #666;">
+        <strong>Video ID:</strong> <code style="font-size: 11px;"><?php echo esc_html( $loom_id ?: '—' ); ?></code>
+    </p>
+    <?php if ( $oembed ) : ?>
+        <p style="margin: 0 0 4px 0; font-size: 12px;">
+            <strong>Loom title:</strong><br>
+            <span style="color: #444;"><?php echo esc_html( $oembed['title'] ?? '—' ); ?></span>
+        </p>
+        <?php if ( ! empty( $oembed['duration'] ) ) : ?>
+            <p style="margin: 0 0 8px 0; font-size: 12px;">
+                <strong>Duration:</strong> <?php echo esc_html( gmdate( 'i:s', (int) $oembed['duration'] ) ); ?>
+            </p>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <p style="margin: 0 0 8px 0; font-size: 12px;">
+        <strong>Thumbnail:</strong><br>
+        <?php if ( $thumb_local ) : ?>
+            <span style="color: #2e7d32;">✓ Cached locally</span>
+            <?php if ( $thumb_attach ) : ?>
+                (<a href="<?php echo esc_url( get_edit_post_link( $thumb_attach ) ); ?>">attachment #<?php echo (int) $thumb_attach; ?></a>)
+            <?php endif; ?>
+        <?php else : ?>
+            <span style="color: #b26500;">⚠ Not yet cached</span> (will download on next save)
+        <?php endif; ?>
+    </p>
+
+    <hr style="margin: 12px 0; border: none; border-top: 1px solid #e1e1e1;">
+
+    <p style="margin: 0 0 8px 0; font-size: 12px; color: #666;">
+        Pull the latest description + thumbnail from Loom. The producer's description in Loom is copied verbatim.
+    </p>
+
+    <p style="margin: 0; display: flex; gap: 8px; flex-wrap: wrap;">
+        <?php
+        $refresh_desc_url = wp_nonce_url(
+            admin_url( 'admin-post.php?action=training_videos_refresh_description&post=' . $post->ID ),
+            'training_videos_refresh_description_' . $post->ID
+        );
+        $refresh_thumb_url = wp_nonce_url(
+            admin_url( 'admin-post.php?action=training_videos_refresh_thumbnail&post=' . $post->ID ),
+            'training_videos_refresh_thumbnail_' . $post->ID
+        );
+        ?>
+        <a href="<?php echo esc_url( $refresh_desc_url ); ?>" class="button button-secondary">
+            ↻ Refresh description
+        </a>
+        <a href="<?php echo esc_url( $refresh_thumb_url ); ?>" class="button button-secondary">
+            ↻ Refresh thumbnail
+        </a>
+    </p>
+    <?php
+}
+
+/**
+ * admin-post handler — pull description from Loom + redirect back
+ */
+function training_videos_handle_refresh_description() {
+    $post_id = isset( $_GET['post'] ) ? (int) $_GET['post'] : 0;
+    if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+        wp_die( 'Permission denied.' );
+    }
+    check_admin_referer( 'training_videos_refresh_description_' . $post_id );
+
+    $description = training_videos_refresh_description_from_loom( $post_id );
+
+    $args = array(
+        'post'        => $post_id,
+        'action'      => 'edit',
+        'tv_loom_msg' => $description ? 'Description refreshed from Loom.' : 'Could not fetch a description from Loom — left unchanged.',
+    );
+    if ( ! $description ) {
+        $args['tv_loom_err'] = 1;
+    }
+    wp_safe_redirect( add_query_arg( $args, admin_url( 'post.php' ) ) );
+    exit;
+}
+add_action( 'admin_post_training_videos_refresh_description', 'training_videos_handle_refresh_description' );
+
+/**
+ * admin-post handler — re-sideload thumbnail from Loom + redirect back
+ */
+function training_videos_handle_refresh_thumbnail() {
+    $post_id = isset( $_GET['post'] ) ? (int) $_GET['post'] : 0;
+    if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+        wp_die( 'Permission denied.' );
+    }
+    check_admin_referer( 'training_videos_refresh_thumbnail_' . $post_id );
+
+    $local_url = training_videos_sideload_loom_thumbnail( $post_id, true );
+
+    $args = array(
+        'post'        => $post_id,
+        'action'      => 'edit',
+        'tv_loom_msg' => $local_url ? 'Thumbnail re-cached from Loom.' : 'Could not refresh thumbnail — left unchanged.',
+    );
+    if ( ! $local_url ) {
+        $args['tv_loom_err'] = 1;
+    }
+    wp_safe_redirect( add_query_arg( $args, admin_url( 'post.php' ) ) );
+    exit;
+}
+add_action( 'admin_post_training_videos_refresh_thumbnail', 'training_videos_handle_refresh_thumbnail' );
+
+/**
+ * Register bulk action on the training_videos list table — card #2.
+ */
+function training_videos_register_bulk_actions( $actions ) {
+    $actions['training_videos_pull_descriptions'] = 'Pull descriptions from Loom';
+    $actions['training_videos_pull_thumbnails']   = 'Re-cache thumbnails from Loom';
+    return $actions;
+}
+add_filter( 'bulk_actions-edit-training_videos', 'training_videos_register_bulk_actions' );
+
+/**
+ * Handle the bulk action — pull descriptions + thumbnails for selected videos.
+ */
+function training_videos_handle_bulk_actions( $redirect_to, $action, $post_ids ) {
+    if ( $action !== 'training_videos_pull_descriptions' && $action !== 'training_videos_pull_thumbnails' ) {
+        return $redirect_to;
+    }
+
+    $count    = 0;
+    $failures = 0;
+    foreach ( $post_ids as $post_id ) {
+        $post_id = (int) $post_id;
+        if ( ! current_user_can( 'edit_post', $post_id ) ) {
+            $failures++;
+            continue;
+        }
+        if ( $action === 'training_videos_pull_descriptions' ) {
+            $result = training_videos_refresh_description_from_loom( $post_id );
+        } else {
+            $result = training_videos_sideload_loom_thumbnail( $post_id, true );
+        }
+        if ( $result ) {
+            $count++;
+        } else {
+            $failures++;
+        }
+    }
+
+    return add_query_arg(
+        array(
+            'tv_bulk_action'  => $action,
+            'tv_bulk_count'   => $count,
+            'tv_bulk_failures' => $failures,
+        ),
+        $redirect_to
+    );
+}
+add_filter( 'handle_bulk_actions-edit-training_videos', 'training_videos_handle_bulk_actions', 10, 3 );
+
+/**
+ * Show admin notice after bulk action runs.
+ */
+function training_videos_bulk_action_notice() {
+    if ( empty( $_GET['tv_bulk_action'] ) ) {
+        return;
+    }
+    $action   = sanitize_text_field( wp_unslash( $_GET['tv_bulk_action'] ) );
+    $count    = isset( $_GET['tv_bulk_count'] ) ? (int) $_GET['tv_bulk_count'] : 0;
+    $failures = isset( $_GET['tv_bulk_failures'] ) ? (int) $_GET['tv_bulk_failures'] : 0;
+
+    $label = $action === 'training_videos_pull_descriptions' ? 'descriptions' : 'thumbnails';
+    $msg   = sprintf(
+        '%d %s pulled from Loom.%s',
+        $count,
+        $label,
+        $failures ? ' ' . $failures . ' could not be fetched (likely missing Loom URL or oEmbed failed).' : ''
+    );
+
+    printf(
+        '<div class="notice notice-%s is-dismissible"><p>%s</p></div>',
+        $failures ? 'warning' : 'success',
+        esc_html( $msg )
+    );
+}
+add_action( 'admin_notices', 'training_videos_bulk_action_notice' );
 
 
 
