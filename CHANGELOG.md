@@ -4,6 +4,11 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.3.4] — 2026-04-28
+
+### Fixed
+- "All Videos" hamburger was bleeding into the desktop header. The body-scoped `.tv-header-link` rule (specificity 0,2,0) was beating the unscoped `.tv-drawer-toggle { display: none }` (0,1,0) at lg+, forcing it to render despite being redundant with the desktop sidebar. Bumped the drawer-toggle selector to match specificity. Now hidden at ≥1024px, visible <1024px as intended.
+
 ## [1.3.3] — 2026-04-28
 
 ### Fixed

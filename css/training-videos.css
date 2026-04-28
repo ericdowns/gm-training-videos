@@ -492,11 +492,19 @@ body.single-training_videos .tv-header-link--primary:focus-visible i {
 	color: var(--tv-color-navy);
 }
 
-/* Drawer toggle — only visible <lg (lg+ uses the desktop sidebar) */
-.tv-drawer-toggle { display: none; }
+/* Drawer toggle — only visible <lg (lg+ uses the desktop sidebar).
+   Selector matches specificity (0,2,0) of the body-scoped .tv-header-link
+   block above so display: none wins by source order. */
+body.post-type-archive-training_videos .tv-drawer-toggle,
+body.single-training_videos .tv-drawer-toggle {
+	display: none;
+}
 
 @media (max-width: 1023px) {
-	.tv-drawer-toggle { display: inline-flex; }
+	body.post-type-archive-training_videos .tv-drawer-toggle,
+	body.single-training_videos .tv-drawer-toggle {
+		display: inline-flex;
+	}
 }
 
 /* Tablet+: full labels visible */
