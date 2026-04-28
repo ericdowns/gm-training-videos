@@ -5,7 +5,7 @@ This document provides guidance to Claude Code when working with the Training Vi
 ## Plugin Overview
 
 **Name:** Training Videos
-**Version:** 1.1.1
+**Version:** 1.3.5
 **Author:** Eric Downs - Technical Director at Grain & Mortar
 **Purpose:** Provide clients with a professional training video library portal using Loom videos
 
@@ -290,38 +290,22 @@ Plugin work is tracked as GitHub Issue cards on this repo using the `/cards` wor
 
 ## Changelog
 
-### April 28, 2026 - v1.1.1
+Full per-version history is in [CHANGELOG.md](CHANGELOG.md). Highlights:
 
-**Thumbnail Fix (Workspace-Private Videos)**
-- Loom's plain-ID thumbnail URL (`{id}-with-play.gif`) returns HTTP 403 for workspace-private videos, so cards rendered as blank placeholders for any client with private Loom content.
-- Replaced with oEmbed-based fetch: `wp_remote_get('https://www.loom.com/v1/oembed?url=...')` returns a hash-suffixed thumbnail URL (`{id}-{hash}.gif`) that's publicly accessible regardless of video privacy.
-- Cached via WP transient: 7 days on success, 5 minutes on failure (so a stale 403 doesn't stick).
-- No template/markup changes — drop-in replacement of `get_video_thumbnail_url()` in `archive-training_videos.php`.
+### v1.3.x — Loom oEmbed integration + brand theming + header polish
+- Auto-populate `_video_description` from Loom oEmbed on save (cards #2, #6, #7, #8) — never overwrites manual edits. Refresh buttons in the edit screen + bulk actions on the admin list.
+- Loom thumbnails sideloaded to Media Library on save (card #3). Front-end serves local URLs, falls back to oEmbed if uncached.
+- Per-site **Brand Theme** settings (card #4) — override the CalForever palette + fonts via `:root` CSS-var overlay. No template forks needed.
+- Repo hardening (card #12) — LICENSE, CHANGELOG.md, issue/PR templates, Wiki disabled.
+- Header redesign — icon-only buttons (40×40) with aria-label + tooltip. Manage Videos primary; Back to home + All Videos as ghost icons. AAA contrast.
 
-### December 17, 2025 - v1.1.0
+### v1.2.0 — Design fixes (cards #13–#18)
+- Self-contained CSS that renders correctly on any client theme (no naked HTML when parent theme lacks brand tokens).
+- Lazy-load Loom iframe with click-to-play poster.
+- Mobile drawer + position label + adaptive archive grid + stacked PREV/NEXT pager.
 
-**Documentation Resource Feature**
-- Added plugin settings page (Training Videos → Settings)
-- Resource card displays at top of archive (Google Doc link)
-- Navy background, document icon, opens in new tab
-
-**Admin Bar Integration**
-- Added "Need Help?" dropdown to WordPress admin bar
-- Links to Training Library and Documentation resource
-- Video icon, opens in new tab
-
-**YouTube Support Removed**
-- Removed YouTube thumbnail generation
-- Removed YouTube conditional embed in single template
-- Plugin now Loom-only (cleaner, focused)
-
-**Archive Improvements**
-- Changed grid from 3 columns to 4 columns
-- Removed "Watched" badge feature and localStorage tracking
-- Improved resource card spacing
-
-**Meta Box Cleanup**
-- Changed title from "Loom Video URL / Google Doc" to "Loom Video URL"
+### Older
+v1.1.1 (workspace-private Loom thumbnail fix), v1.1.0 (documentation resource + admin bar), v1.0.0 (initial release) — see CHANGELOG.md.
 
 ---
 

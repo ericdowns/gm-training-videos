@@ -3,7 +3,7 @@
 > **Interim doc.** This file is hand-maintained from filesystem scans. Once the central registration/dashboard cards land ([#A](https://github.com/ericdowns/gm-training-videos/issues?q=is%3Aopen+is%3Aissue+label%3Acard) and onward), the source of truth moves to the live registry and this file becomes a periodic snapshot.
 
 **Last scan:** 2026-04-28
-**Master repo version:** v1.1.1
+**Master repo version:** v1.3.5
 
 ---
 
@@ -11,9 +11,11 @@
 
 | Status | Count | Action |
 |---|---|---|
-| 🔴 v1.0.0 (stale) | 17 | Need v1.1.1 — missing doc-resource feature + thumbnail fix |
-| 🟡 v1.1.0 | 3 | Need v1.1.1 — missing thumbnail fix |
-| 🟢 v1.1.1 (current) | 0 | — |
+| 🔴 v1.0.0 | 17 | Need v1.3.5 — missing two minor releases (Loom oEmbed integration, brand theming, design pass, header polish) |
+| 🟡 v1.1.0 | 3 | Need v1.3.5 — missing the v1.2 design pass + the v1.3 Loom integration |
+| ⚪ v1.1.1 | 0 | — |
+| ⚪ v1.2.0 | 0 | — |
+| 🟢 v1.3.5 (current) | 0 | All client sites still need updating |
 
 **Net:** 0 sites are on the latest version. Every install is at least one bug-fix release behind.
 
