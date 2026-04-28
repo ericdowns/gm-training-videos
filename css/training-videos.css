@@ -350,6 +350,132 @@ a.hover\:bg-beige\/50:hover { background-color: rgba(253, 249, 227, 0.50); }
 .btn:hover { background: var(--tv-color-brick); color: var(--tv-color-white); }
 
 /* ---------------------------------------------------------- */
+/* Loom poster — lazy-load click-to-play                      */
+/* ---------------------------------------------------------- */
+
+.tv-poster-wrap {
+	position: relative;
+	width: 100%;
+}
+
+.tv-poster {
+	display: block;
+	position: relative;
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	border: 0;
+	background: var(--tv-color-navy);
+	cursor: pointer;
+	overflow: hidden;
+	aspect-ratio: 16 / 9;
+	font: inherit;
+	color: inherit;
+}
+
+/* Older browsers without aspect-ratio support — keep the 56.25% padding-hack ratio */
+@supports not (aspect-ratio: 16 / 9) {
+	.tv-poster {
+		aspect-ratio: auto;
+		padding-bottom: 56.25%;
+		height: 0;
+	}
+}
+
+.tv-poster__img {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+	transition: transform 400ms ease, opacity 200ms ease;
+}
+
+.tv-poster:hover .tv-poster__img,
+.tv-poster:focus-visible .tv-poster__img {
+	transform: scale(1.02);
+}
+
+.tv-poster__overlay {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(17, 45, 64, 0.30);
+	transition: background-color 200ms ease;
+}
+
+.tv-poster:hover .tv-poster__overlay,
+.tv-poster:focus-visible .tv-poster__overlay {
+	background: rgba(17, 45, 64, 0.45);
+}
+
+.tv-poster__play {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 5rem;
+	height: 5rem;
+	border-radius: 9999px;
+	background: var(--tv-color-orange);
+	color: var(--tv-color-navy);
+	box-shadow: 0 12px 24px -8px rgba(17, 45, 64, 0.45);
+	transition: transform 200ms ease, background-color 200ms ease;
+}
+
+.tv-poster:hover .tv-poster__play,
+.tv-poster:focus-visible .tv-poster__play {
+	transform: scale(1.08);
+	background: var(--tv-color-brick);
+	color: var(--tv-color-white);
+}
+
+.tv-poster__play .fa-play {
+	font-size: 1.5rem;
+	margin-left: 0.25rem; /* optical centering for the play triangle */
+}
+
+.tv-poster:focus-visible {
+	outline: 3px solid var(--tv-color-orange);
+	outline-offset: 2px;
+}
+
+/* Empty state — no Loom URL set yet */
+.tv-poster--empty {
+	cursor: default;
+	background: var(--tv-color-linen);
+	color: var(--tv-color-stone-blue);
+}
+
+.tv-poster__empty {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+}
+
+/* Once swapped to an iframe, take the same aspect ratio */
+.tv-poster-wrap iframe {
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	border: 0;
+}
+
+@supports not (aspect-ratio: 16 / 9) {
+	.tv-poster-wrap iframe {
+		aspect-ratio: auto;
+		padding-bottom: 56.25%;
+		height: 0;
+	}
+}
+
+/* ---------------------------------------------------------- */
 /* Responsive                                                 */
 /* ---------------------------------------------------------- */
 
