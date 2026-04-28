@@ -115,8 +115,25 @@ include plugin_dir_path( __FILE__ ) . 'training-header.php';
 	<?php endif; ?>
 
 	<?php if ( have_posts() ) : ?>
+		<?php
+		// Adapt grid columns to video count so a sparse library doesn't leave a
+		// dead trailing column. 1 → centered single card, 2 → halves, 3 → thirds,
+		// 4+ → quarters. wp_count_posts() returns strings, so int-cast first.
+		$count_int  = (int) $video_count;
+		$grid_class = 'grid grid-cols-1 gap-6 tv-grid';
+		if ( $count_int >= 4 ) {
+			$grid_class .= ' md:grid-cols-2 lg:grid-cols-4';
+		} elseif ( 3 === $count_int ) {
+			$grid_class .= ' md:grid-cols-2 lg:grid-cols-3';
+		} elseif ( 2 === $count_int ) {
+			$grid_class .= ' md:grid-cols-2';
+		} else {
+			// Single video — center it with a max-width so it doesn't stretch full bleed.
+			$grid_class .= ' tv-grid-single';
+		}
+		?>
 		<!-- Video Grid -->
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+		<div class="<?php echo esc_attr( $grid_class ); ?>">
 			<?php
 			while ( have_posts() ) :
 				the_post();

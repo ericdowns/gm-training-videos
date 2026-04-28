@@ -350,6 +350,18 @@ a.hover\:bg-beige\/50:hover { background-color: rgba(253, 249, 227, 0.50); }
 .btn:hover { background: var(--tv-color-brick); color: var(--tv-color-white); }
 
 /* ---------------------------------------------------------- */
+/* Archive grid — adaptive to video count                     */
+/* ---------------------------------------------------------- */
+
+/* Single-video case: center one card at a comfortable reading width
+   so it doesn't stretch full-bleed on desktop. */
+.tv-grid-single {
+	max-width: 22rem;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* ---------------------------------------------------------- */
 /* Responsive                                                 */
 /* ---------------------------------------------------------- */
 
@@ -371,5 +383,6 @@ a.hover\:bg-beige\/50:hover { background-color: rgba(253, 249, 227, 0.50); }
 	.lg\:block { display: block; }
 	.lg\:sticky { position: sticky; }
 	.lg\:top-24 { top: 6rem; }
+	.lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 	.lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
