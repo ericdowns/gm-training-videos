@@ -350,6 +350,266 @@ a.hover\:bg-beige\/50:hover { background-color: rgba(253, 249, 227, 0.50); }
 .btn:hover { background: var(--tv-color-brick); color: var(--tv-color-white); }
 
 /* ---------------------------------------------------------- */
+/* Mobile drawer + hamburger + back pill + position label     */
+/* ---------------------------------------------------------- */
+
+.tv-drawer-toggle {
+	display: none; /* desktop default — toggled in via media query below */
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: var(--tv-color-white);
+	font-size: 1.25rem;
+	cursor: pointer;
+	border-radius: var(--tv-radius);
+	transition: background-color 200ms ease;
+}
+
+.tv-drawer-toggle:hover,
+.tv-drawer-toggle:focus-visible {
+	background: rgba(255, 255, 255, 0.20);
+}
+
+.tv-drawer-toggle:focus-visible {
+	outline: 2px solid var(--tv-color-orange);
+	outline-offset: 2px;
+}
+
+/* Visible only below lg */
+@media (max-width: 1023px) {
+	.tv-drawer-toggle { display: inline-flex; }
+}
+
+.tv-back-pill {
+	display: none; /* hidden by default; <lg shows it */
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0.875rem;
+	margin-bottom: 1rem;
+	background: var(--tv-color-navy);
+	color: var(--tv-color-beige);
+	border-radius: 9999px;
+	font-size: 0.8125rem;
+	font-weight: 500;
+	transition: background-color 200ms ease;
+	width: fit-content;
+}
+
+.tv-back-pill:hover,
+.tv-back-pill:focus-visible {
+	background: var(--tv-color-stone-blue);
+	color: var(--tv-color-white);
+}
+
+@media (max-width: 1023px) {
+	.tv-back-pill { display: inline-flex; }
+}
+
+.tv-position {
+	display: inline-block;
+	font-size: 0.75rem;
+	font-weight: 500;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: var(--tv-color-stone-blue);
+	margin-bottom: 0.5rem;
+}
+
+/* Drawer + backdrop */
+
+.tv-drawer-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(17, 45, 64, 0.50);
+	z-index: 99;
+	border: 0;
+	padding: 0;
+	cursor: pointer;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 200ms ease, visibility 200ms ease;
+}
+
+.tv-drawer-backdrop[aria-hidden="false"] {
+	opacity: 1;
+	visibility: visible;
+}
+
+.tv-drawer {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: min(85vw, 360px);
+	background: var(--tv-color-white);
+	z-index: 100;
+	transform: translateX(-100%);
+	transition: transform 220ms ease;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	box-shadow: 4px 0 24px -8px rgba(17, 45, 64, 0.30);
+}
+
+.tv-drawer[aria-hidden="false"] {
+	transform: translateX(0);
+}
+
+/* Lock body scroll while drawer is open */
+body.tv-drawer-open {
+	overflow: hidden;
+}
+
+.tv-drawer__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	padding: 1rem 1.25rem;
+	background: var(--tv-color-navy);
+	color: var(--tv-color-white);
+}
+
+.tv-drawer__title {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 1rem;
+	font-weight: 600;
+	margin: 0;
+}
+
+.tv-drawer__title .tv-drawer__count {
+	margin-left: 0.5rem;
+	font-weight: 400;
+	opacity: 0.65;
+	font-size: 0.875rem;
+}
+
+.tv-drawer__close {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	padding: 0;
+	border: 0;
+	border-radius: var(--tv-radius);
+	background: rgba(255, 255, 255, 0.10);
+	color: var(--tv-color-white);
+	cursor: pointer;
+	font-size: 1rem;
+	transition: background-color 200ms ease;
+}
+
+.tv-drawer__close:hover,
+.tv-drawer__close:focus-visible {
+	background: rgba(255, 255, 255, 0.25);
+}
+
+.tv-drawer__list {
+	flex: 1 1 auto;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	overflow-y: auto;
+}
+
+.tv-drawer__list > li + li {
+	border-top: 1px solid var(--tv-color-linen);
+}
+
+.tv-drawer__item {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	padding: 0.875rem 1.25rem;
+	color: var(--tv-color-stone-blue);
+	font-size: 0.9375rem;
+	line-height: 1.35;
+	transition: background-color 200ms ease, color 200ms ease;
+}
+
+.tv-drawer__item:hover,
+.tv-drawer__item:focus-visible {
+	background: var(--tv-color-beige);
+	color: var(--tv-color-navy);
+}
+
+.tv-drawer__item.is-current {
+	background: var(--tv-color-beige);
+	border-left: 4px solid var(--tv-color-orange);
+	padding-left: calc(1.25rem - 4px);
+	color: var(--tv-color-navy);
+	font-weight: 500;
+}
+
+.tv-drawer__num {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.5rem;
+	height: 1.5rem;
+	border-radius: 9999px;
+	background: var(--tv-color-linen);
+	color: var(--tv-color-stone-blue);
+	font-size: 0.75rem;
+	font-weight: 500;
+}
+
+.tv-drawer__item.is-current .tv-drawer__num {
+	background: var(--tv-color-orange);
+	color: var(--tv-color-navy);
+}
+
+.tv-drawer__foot {
+	padding: 0.875rem 1.25rem;
+	border-top: 1px solid var(--tv-color-linen);
+	background: rgba(253, 249, 227, 0.5);
+}
+
+.tv-drawer__archive-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: var(--tv-color-navy);
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: color 200ms ease;
+}
+
+.tv-drawer__archive-link:hover,
+.tv-drawer__archive-link:focus-visible {
+	color: var(--tv-color-brick);
+}
+
+/* Hide drawer + backdrop entirely on lg+ since the sidebar fills the role */
+@media (min-width: 1024px) {
+	.tv-drawer,
+	.tv-drawer-backdrop {
+		display: none !important;
+	}
+}
+
+/* WP admin bar offset — only relevant in development (end users aren't logged in) */
+body.admin-bar .tv-drawer,
+body.admin-bar .tv-drawer-backdrop {
+	top: 32px;
+}
+
+@media (max-width: 782px) {
+	body.admin-bar .tv-drawer,
+	body.admin-bar .tv-drawer-backdrop {
+		top: 46px;
+	}
+}
+
+/* ---------------------------------------------------------- */
 /* Responsive                                                 */
 /* ---------------------------------------------------------- */
 
