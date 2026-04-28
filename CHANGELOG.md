@@ -4,7 +4,15 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
-## [1.3.2] — 2026-04-28
+## [1.3.3] — 2026-04-28
+
+### Fixed
+- **Header text was rendering as stone-blue, not white** — CSS specificity bug. The base block sets `body.post-type-archive-training_videos a { color: inherit; }` (specificity 0,1,1) which beat `.tv-header-link { color: white }` (0,1,0), so all header text + icons inherited the body's stone-blue color. Result: ~1.97:1 contrast against navy, fails WCAG AA.
+- Scoped header link colors to `body.* .tv-header-link` selectors so they match specificity and win the cascade. Same fix applied to `.tv-brand`. Verified live in the browser — all header text/icons now render at white (14.25:1 contrast on navy, AAA pass), and the orange "Manage Videos" button at 8.46:1 (AAA pass).
+- Bumped header label `font-weight` 500 → 600 for additional visual weight against the dark bg.
+
+### Changed
+- "Manage Videos" admin button promoted to a fully orange treatment (orange text + orange border), giving it visual hierarchy distinct from the ghost-link "All Videos" / "Back to {site}" secondary actions.
 
 ### Changed
 - Header redesign — drop the slug subtitle so the brand is a clean single line ("🎓 Training Library"). Bare hamburger ☰ replaced with a labeled "All Videos" button (icon + text). "Back to Site" → "Back to {site_name}" using `bloginfo('name')` so users know where they're going. "Manage" → "Manage Videos". Bumped text contrast (white not beige) and primary button border opacity (0.4 not 0.25) for readability against navy.

@@ -365,29 +365,43 @@ a.hover\:bg-beige\/50:hover { background-color: rgba(253, 249, 227, 0.50); }
 
 /* ---------------------------------------------------------- */
 /* Brand — single line                                        */
+/*                                                            */
+/* NOTE: selectors are scoped to body.* classes to beat the   */
+/* `body.post-type-archive-training_videos a { color: inherit }` */
+/* rule from the base block. Without this, header text gets   */
+/* the body's stone-blue color and reads as gray on navy.     */
 /* ---------------------------------------------------------- */
 
-.tv-brand {
+body.post-type-archive-training_videos .tv-brand,
+body.single-training_videos .tv-brand {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.625rem;
-	color: var(--tv-color-white);
+	color: #FFFFFF;
 	font-size: 1.125rem;
-	font-weight: 500;
+	font-weight: 600;
 	letter-spacing: -0.005em;
 	transition: color 200ms ease;
 	text-decoration: none;
 	white-space: nowrap;
 }
 
-.tv-brand:hover {
-	color: var(--tv-color-orange);
-}
-
-.tv-brand i {
+body.post-type-archive-training_videos .tv-brand i,
+body.single-training_videos .tv-brand i {
 	font-size: 1.5rem;
 	flex-shrink: 0;
 	line-height: 1;
+	color: #FFFFFF;
+}
+
+body.post-type-archive-training_videos .tv-brand:hover,
+body.single-training_videos .tv-brand:hover {
+	color: var(--tv-color-orange);
+}
+
+body.post-type-archive-training_videos .tv-brand:hover i,
+body.single-training_videos .tv-brand:hover i {
+	color: var(--tv-color-orange);
 }
 
 /* ---------------------------------------------------------- */
@@ -400,15 +414,16 @@ a.hover\:bg-beige\/50:hover { background-color: rgba(253, 249, 227, 0.50); }
 	gap: 0.5rem;
 }
 
-.tv-header-link {
+body.post-type-archive-training_videos .tv-header-link,
+body.single-training_videos .tv-header-link {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.5rem 0.875rem;
 	min-height: 40px;
-	color: var(--tv-color-white);
+	color: #FFFFFF;
 	font-size: 0.875rem;
-	font-weight: 500;
+	font-weight: 600;
 	letter-spacing: 0.005em;
 	border: 1px solid transparent;
 	border-radius: var(--tv-radius);
@@ -420,33 +435,61 @@ a.hover\:bg-beige\/50:hover { background-color: rgba(253, 249, 227, 0.50); }
 	font-family: inherit;
 }
 
-.tv-header-link i {
-	font-size: 0.875rem;
+body.post-type-archive-training_videos .tv-header-link i,
+body.single-training_videos .tv-header-link i {
+	font-size: 0.9375rem;
 	flex-shrink: 0;
 	line-height: 1;
+	color: #FFFFFF;
 }
 
-.tv-header-link:hover,
-.tv-header-link:focus-visible {
+body.post-type-archive-training_videos .tv-header-link:hover,
+body.post-type-archive-training_videos .tv-header-link:focus-visible,
+body.single-training_videos .tv-header-link:hover,
+body.single-training_videos .tv-header-link:focus-visible {
 	color: var(--tv-color-orange);
-	background: rgba(255, 255, 255, 0.06);
+	background: rgba(255, 255, 255, 0.10);
 }
 
-.tv-header-link:focus-visible {
+body.post-type-archive-training_videos .tv-header-link:hover i,
+body.post-type-archive-training_videos .tv-header-link:focus-visible i,
+body.single-training_videos .tv-header-link:hover i,
+body.single-training_videos .tv-header-link:focus-visible i {
+	color: var(--tv-color-orange);
+}
+
+body.post-type-archive-training_videos .tv-header-link:focus-visible,
+body.single-training_videos .tv-header-link:focus-visible {
 	outline: 2px solid var(--tv-color-orange);
 	outline-offset: 2px;
 }
 
-/* Primary variant — outlined, fills with accent on hover */
-.tv-header-link--primary {
-	border-color: rgba(255, 255, 255, 0.4);
+/* Primary variant — outlined orange, fills on hover */
+body.post-type-archive-training_videos .tv-header-link--primary,
+body.single-training_videos .tv-header-link--primary {
+	border-color: var(--tv-color-orange);
+	color: var(--tv-color-orange);
 }
 
-.tv-header-link--primary:hover,
-.tv-header-link--primary:focus-visible {
+body.post-type-archive-training_videos .tv-header-link--primary i,
+body.single-training_videos .tv-header-link--primary i {
+	color: var(--tv-color-orange);
+}
+
+body.post-type-archive-training_videos .tv-header-link--primary:hover,
+body.post-type-archive-training_videos .tv-header-link--primary:focus-visible,
+body.single-training_videos .tv-header-link--primary:hover,
+body.single-training_videos .tv-header-link--primary:focus-visible {
 	color: var(--tv-color-navy);
 	background: var(--tv-color-orange);
 	border-color: var(--tv-color-orange);
+}
+
+body.post-type-archive-training_videos .tv-header-link--primary:hover i,
+body.post-type-archive-training_videos .tv-header-link--primary:focus-visible i,
+body.single-training_videos .tv-header-link--primary:hover i,
+body.single-training_videos .tv-header-link--primary:focus-visible i {
+	color: var(--tv-color-navy);
 }
 
 /* Drawer toggle — only visible <lg (lg+ uses the desktop sidebar) */
