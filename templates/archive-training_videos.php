@@ -96,7 +96,7 @@ include plugin_dir_path( __FILE__ ) . 'training-header.php';
 				<?php
 				$video_description = get_post_meta( get_the_ID(), '_video_description', true );
 				$video_url         = get_post_meta( get_the_ID(), '_loom_video_url', true );
-				$thumbnail_url     = get_video_thumbnail_url( $video_url );
+				$thumbnail_url     = training_videos_get_loom_thumbnail_url( $video_url, get_the_ID() );
 				?>
 				<a href="<?php the_permalink(); ?>" class="group block bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 border border-linen">
 					<!-- Thumbnail -->

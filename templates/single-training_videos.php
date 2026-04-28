@@ -126,7 +126,7 @@ include plugin_dir_path( __FILE__ ) . 'training-header.php';
 				<?php
 				$loom_video_url = get_post_meta( get_the_ID(), '_loom_video_url', true );
 				if ( $loom_video_url ) :
-					$thumbnail_url = training_videos_get_loom_thumbnail_url( $loom_video_url );
+					$thumbnail_url = training_videos_get_loom_thumbnail_url( $loom_video_url, get_the_ID() );
 					$embed_url     = add_query_arg(
 						array(
 							'hide_owner'       => 'true',
