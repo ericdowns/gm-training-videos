@@ -350,6 +350,41 @@ a.hover\:bg-beige\/50:hover { background-color: rgba(253, 249, 227, 0.50); }
 .btn:hover { background: var(--tv-color-brick); color: var(--tv-color-white); }
 
 /* ---------------------------------------------------------- */
+/* Main wrapper — no forced full-viewport height              */
+/* ---------------------------------------------------------- */
+
+/* Was .min-h-screen — pages ended early so the footer floated mid-viewport
+   on tall screens. Use a modest floor instead so a near-empty archive still
+   has presence but a typical archive ends naturally above the footer. */
+.tv-main {
+	min-height: 400px;
+}
+
+/* ---------------------------------------------------------- */
+/* "Back to all videos" link at bottom of single pages        */
+/* ---------------------------------------------------------- */
+
+.tv-back-link__a {
+	color: var(--tv-color-navy);
+	font-weight: 500;
+	font-size: 0.9375rem;
+	padding: 0.5rem 1rem;
+	border-radius: var(--tv-radius);
+	transition: color 200ms ease, background-color 200ms ease;
+}
+
+.tv-back-link__a:hover,
+.tv-back-link__a:focus-visible {
+	color: var(--tv-color-brick);
+	background: rgba(255, 188, 33, 0.15); /* soft orange wash */
+}
+
+.tv-back-link__a:focus-visible {
+	outline: 2px solid var(--tv-color-orange);
+	outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------- */
 /* Responsive                                                 */
 /* ---------------------------------------------------------- */
 
