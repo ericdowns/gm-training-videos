@@ -4,6 +4,11 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.3.7] — 2026-04-28
+
+### Changed
+- Sticky footer — body is now `flex-direction: column; min-height: 100vh` and `.tv-main` is `flex: 1 0 auto`, so the navy footer is pinned to the bottom of the viewport on short pages (single videos on tall screens, empty states) instead of floating mid-page.
+
 ## [1.3.6] — 2026-04-28
 
 ### Fixed

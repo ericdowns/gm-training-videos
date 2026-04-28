@@ -40,6 +40,17 @@ body.single-training_videos {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	line-height: 1.5;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+/* Sticky footer: main grows to fill the viewport so the navy footer is
+   always pinned to the bottom edge, even on short pages (login redirect,
+   empty state, single video on a tall screen). */
+body.post-type-archive-training_videos .tv-main,
+body.single-training_videos .tv-main {
+	flex: 1 0 auto;
 }
 
 body.post-type-archive-training_videos *,
