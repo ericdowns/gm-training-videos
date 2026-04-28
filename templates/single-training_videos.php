@@ -192,6 +192,15 @@ include plugin_dir_path( __FILE__ ) . 'training-header.php';
 					<?php endif; ?>
 				</nav>
 
+				<!-- Back to all videos -->
+				<div class="tv-back-link mt-8 text-center">
+					<a href="<?php echo esc_url( get_post_type_archive_link( 'training_videos' ) ); ?>"
+					   class="tv-back-link__a inline-flex items-center gap-2">
+						<i class="fa-sharp fa-solid fa-arrow-left" aria-hidden="true"></i>
+						Back to all videos
+					</a>
+				</div>
+
 					<?php
 				endwhile;
 			else :

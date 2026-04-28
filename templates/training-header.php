@@ -50,4 +50,4 @@
 	</header>
 
 	<!-- Main Content Wrapper -->
-	<main class="min-h-screen">
+	<main class="tv-main">
