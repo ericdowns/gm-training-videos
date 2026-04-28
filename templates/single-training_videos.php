@@ -163,32 +163,30 @@ include plugin_dir_path( __FILE__ ) . 'training-header.php';
 					</div>
 				<?php endif; ?>
 
-				<!-- Navigation -->
-				<nav class="flex justify-between items-stretch gap-4 pt-8 border-t border-linen">
+				<!-- Navigation: stacks full-width on mobile, side-by-side at md+ -->
+				<nav class="tv-pager pt-8 border-t border-linen">
 					<?php if ( $prev_video ) : ?>
 						<a href="<?php echo esc_url( get_permalink( $prev_video->ID ) ); ?>"
-						   class="flex items-center gap-3 p-4 bg-white border border-linen rounded-lg hover:border-orange transition-all group" style="max-width: 45%;">
-							<span class="flex-shrink-0 w-10 h-10 rounded-full bg-linen flex items-center justify-center group-hover:bg-orange transition-colors">
-								<i class="fa-sharp fa-solid fa-arrow-left text-stone-blue group-hover:text-navy transition-colors"></i>
+						   class="tv-pager__item tv-pager__item--prev group flex items-center gap-3 p-4 bg-white border border-linen rounded-lg hover:border-orange transition-all">
+							<span class="tv-pager__icon flex-shrink-0 w-10 h-10 rounded-full bg-linen flex items-center justify-center group-hover:bg-orange transition-colors">
+								<i class="fa-sharp fa-solid fa-arrow-left text-stone-blue group-hover:text-navy transition-colors" aria-hidden="true"></i>
 							</span>
-							<span class="min-w-0">
+							<span class="tv-pager__text min-w-0">
 								<span class="text-xs text-stone-blue uppercase tracking-wide block">Previous</span>
-								<span class="text-navy font-medium text-sm truncate block"><?php echo esc_html( $prev_video->post_title ); ?></span>
+								<span class="tv-pager__title text-navy font-medium text-sm leading-tight block"><?php echo esc_html( $prev_video->post_title ); ?></span>
 							</span>
 						</a>
-					<?php else : ?>
-						<span></span>
 					<?php endif; ?>
 
 					<?php if ( $next_video ) : ?>
 						<a href="<?php echo esc_url( get_permalink( $next_video->ID ) ); ?>"
-						   class="flex items-center gap-3 p-4 bg-white border border-linen rounded-lg hover:border-orange transition-all group text-right" style="max-width: 45%;">
-							<span class="min-w-0">
+						   class="tv-pager__item tv-pager__item--next group flex items-center gap-3 p-4 bg-white border border-linen rounded-lg hover:border-orange transition-all">
+							<span class="tv-pager__text min-w-0">
 								<span class="text-xs text-stone-blue uppercase tracking-wide block">Next</span>
-								<span class="text-navy font-medium text-sm truncate block"><?php echo esc_html( $next_video->post_title ); ?></span>
+								<span class="tv-pager__title text-navy font-medium text-sm leading-tight block"><?php echo esc_html( $next_video->post_title ); ?></span>
 							</span>
-							<span class="flex-shrink-0 w-10 h-10 rounded-full bg-linen flex items-center justify-center group-hover:bg-orange transition-colors">
-								<i class="fa-sharp fa-solid fa-arrow-right text-stone-blue group-hover:text-navy transition-colors"></i>
+							<span class="tv-pager__icon flex-shrink-0 w-10 h-10 rounded-full bg-linen flex items-center justify-center group-hover:bg-orange transition-colors">
+								<i class="fa-sharp fa-solid fa-arrow-right text-stone-blue group-hover:text-navy transition-colors" aria-hidden="true"></i>
 							</span>
 						</a>
 					<?php endif; ?>
