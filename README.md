@@ -89,8 +89,12 @@ https://cdn.loom.com/sessions/thumbnails/[VIDEO_ID]-with-play.gif
 
 ## Version History
 
-- **1.1.0** - Documentation resource feature, admin bar integration, YouTube removal, 4-column grid
-- **1.0.0** - Initial release
+See [CHANGELOG.md](CHANGELOG.md) for the full history.
+
+- **1.2.0** — Self-contained CSS, lazy-load Loom poster, mobile drawer, adaptive grid, deployment registry
+- **1.1.1** — Loom thumbnail 403 fix for workspace-private videos
+- **1.1.0** — Documentation resource, admin bar, 4-col grid (later count-adaptive)
+- **1.0.0** — Initial release
 
 ## Author
 
