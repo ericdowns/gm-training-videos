@@ -112,26 +112,46 @@ include plugin_dir_path( __FILE__ ) . 'training-header.php';
 					<?php endif; ?>
 				</div>
 
-				<!-- Video Embed -->
+				<!-- Video Embed (lazy-loaded — click poster to load iframe) -->
 				<?php
 				$loom_video_url = get_post_meta( get_the_ID(), '_loom_video_url', true );
 				if ( $loom_video_url ) :
+					$thumbnail_url = training_videos_get_loom_thumbnail_url( $loom_video_url );
+					$embed_url     = add_query_arg(
+						array(
+							'hide_owner'       => 'true',
+							'hide_share'       => 'true',
+							'hide_title'       => 'true',
+							'hideEmbedTopBar'  => 'true',
+						),
+						$loom_video_url
+					);
 					?>
-					<div class="mb-8 rounded-lg overflow-hidden shadow-lg" style="position: relative; padding-bottom: 56.25%; height: 0; background: #112D40;">
-						<iframe src="<?php echo esc_url( $loom_video_url ); ?>?hide_owner=true&hide_share=true&hide_title=true&hideEmbedTopBar=true"
-								title="<?php the_title_attribute(); ?>"
-								frameborder="0"
-								webkitallowfullscreen
-								mozallowfullscreen
-								allowfullscreen
-								style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-						</iframe>
+					<div class="tv-poster-wrap mb-8 rounded-lg overflow-hidden shadow-lg">
+						<button type="button"
+								class="tv-poster"
+								data-embed="<?php echo esc_url( $embed_url ); ?>"
+								aria-label="Play video: <?php echo esc_attr( get_the_title() ); ?>">
+							<?php if ( $thumbnail_url ) : ?>
+								<img class="tv-poster__img"
+									 src="<?php echo esc_url( $thumbnail_url ); ?>"
+									 alt=""
+									 loading="lazy" />
+							<?php endif; ?>
+							<span class="tv-poster__overlay" aria-hidden="true">
+								<span class="tv-poster__play">
+									<i class="fa-sharp fa-solid fa-play"></i>
+								</span>
+							</span>
+						</button>
 					</div>
 				<?php else : ?>
-					<div class="mb-8 rounded-lg overflow-hidden bg-linen flex items-center justify-center" style="position: relative; padding-bottom: 56.25%; height: 0;">
-						<div class="absolute inset-0 flex flex-col items-center justify-center text-stone-blue">
-							<i class="fa-sharp fa-solid fa-video-slash text-5xl mb-3"></i>
-							<p class="text-lg">No video available</p>
+					<div class="tv-poster-wrap mb-8 rounded-lg overflow-hidden">
+						<div class="tv-poster tv-poster--empty" aria-hidden="true">
+							<div class="tv-poster__empty">
+								<i class="fa-sharp fa-solid fa-video-slash text-5xl mb-3"></i>
+								<p class="text-lg">No video available</p>
+							</div>
 						</div>
 					</div>
 				<?php endif; ?>
@@ -185,6 +205,30 @@ include plugin_dir_path( __FILE__ ) . 'training-header.php';
 		</div>
 	</div>
 </div>
+
+<script>
+/**
+ * Lazy-load the Loom iframe on click. Until clicked, only the poster image +
+ * a play button render — no Loom JS, no third-party network requests.
+ */
+(function () {
+	var posters = document.querySelectorAll( '.tv-poster[data-embed]' );
+	Array.prototype.forEach.call( posters, function ( btn ) {
+		btn.addEventListener( 'click', function () {
+			var embedUrl = btn.getAttribute( 'data-embed' );
+			if ( ! embedUrl ) { return; }
+			var sep   = embedUrl.indexOf( '?' ) === -1 ? '?' : '&';
+			var iframe = document.createElement( 'iframe' );
+			iframe.src           = embedUrl + sep + 'autoplay=1';
+			iframe.title         = btn.getAttribute( 'aria-label' ) || 'Video';
+			iframe.allow         = 'autoplay; fullscreen; picture-in-picture';
+			iframe.allowFullscreen = true;
+			iframe.setAttribute( 'frameborder', '0' );
+			btn.replaceWith( iframe );
+		} );
+	} );
+})();
+</script>
 
 <?php
 // Include footer

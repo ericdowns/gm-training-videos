@@ -14,6 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+require_once plugin_dir_path( __FILE__ ) . 'inc/loom-helpers.php';
+
 
 
 // Enqueue self-contained styles + Font Awesome only on plugin pages.
