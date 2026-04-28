@@ -29,15 +29,19 @@
 
 				<!-- Navigation -->
 				<nav class="flex gap-2 items-center">
-					<a href="<?php echo esc_url( home_url() ); ?>" class="inline-flex items-center gap-2 px-4 py-2 text-white/80 hover:text-white transition-colors text-sm">
-						<i class="fa-sharp fa-solid fa-arrow-left"></i>
-						<span class="hidden sm:inline">Back to Site</span>
+					<a href="<?php echo esc_url( home_url() ); ?>"
+					   class="tv-header-link inline-flex items-center gap-2 px-3 py-2 text-white/80 hover:text-white transition-colors text-sm"
+					   aria-label="Back to main site">
+						<i class="fa-sharp fa-solid fa-arrow-left" aria-hidden="true"></i>
+						<span>Back to Site</span>
 					</a>
 
 					<?php if ( current_user_can( 'manage_options' ) ) : ?>
-						<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=training_videos' ) ); ?>" class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 text-white rounded hover:bg-white/20 transition-colors text-sm">
-							<i class="fa-sharp fa-solid fa-gear"></i>
-							<span class="hidden sm:inline">Manage</span>
+						<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=training_videos' ) ); ?>"
+						   class="tv-header-link inline-flex items-center gap-2 px-3 py-2 bg-white/20 text-white rounded hover:bg-white/30 transition-colors text-sm"
+						   aria-label="Manage training videos in admin">
+							<i class="fa-sharp fa-solid fa-gear" aria-hidden="true"></i>
+							<span>Manage</span>
 						</a>
 					<?php endif; ?>
 				</nav>
