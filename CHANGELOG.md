@@ -4,6 +4,21 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.4.2] — 2026-04-28
+
+### Changed (edit screen UX, post-critique)
+- **Loom Data + Featured Image moved out of the sidebar** into the main column. Sidebar is now Publish-only.
+- **Loom Data meta box redesigned** as a 2-column layout: actual cached/oEmbed thumbnail on the left, metadata table on the right (Video ID / Loom title / Duration / Description status). Replaces the old all-text status block.
+- **Block order reversed** to read top-to-bottom as a workflow: Loom Video URL (high) → Loom video info (core) → Description (default) → Featured Image (low). Pasting the URL is now the first thing on the page; the Loom info appears below it, populated by the URL.
+- **Single canonical help banner** above all meta boxes via `edit_form_after_title`. Replaces the three stacked blue banners (Description, Featured Image, URL meta box's thumbnail line). Per-box copy is now short and action-only.
+- **Combined "Re-sync from Loom"** button replaces the two-button "Refresh description / Refresh thumbnail" pair. New `admin-post` action `training_videos_resync` fires both handlers and reports a combined status.
+- **Renamed "Loom Data" → "Loom video info"** — less engineering-jargon, clearer to non-technical editors.
+- Empty-state copy in the Loom info box upgraded to explain *what's about to happen* instead of "Add a Loom URL above to enable Loom data sync."
+- Refresh button glyph (↻) wrapped in `aria-hidden` so screen readers read just the label.
+
+### Fixed
+- **Description label dropped the bogus "140 character" claim.** Auto-fill from Loom routinely produced longer descriptions; the limit was fictional. Label is now just "Description". Frontend templates already handle long text (line-clamp on archive cards).
+
 ## [1.4.1] — 2026-04-28
 
 ### Fixed

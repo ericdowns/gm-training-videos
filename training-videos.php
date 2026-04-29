@@ -3,7 +3,7 @@
  * Plugin Name: Training Videos
  * Plugin URI: https://grainandmortar.com
  * Description: A custom plugin made by Grain & Mortar that displays training videos.
- * Version: 1.4.1
+ * Version: 1.4.2
  * Author: Grain & Mortar | Technical Director - Eric Downs (eric@grainandmortar.com)
  * Author URI: https://grainandmortar.com
  * License: Grain & Mortar 
@@ -42,7 +42,7 @@ function training_videos_enqueue_styles() {
     if ( ! is_singular( 'training_videos' ) && ! is_post_type_archive( 'training_videos' ) ) {
         return;
     }
-    $version = '1.4.1';
+    $version = '1.4.2';
     wp_enqueue_style(
         'training-videos-fontawesome',
         'https://use.fontawesome.com/releases/v6.5.1/css/all.css',
@@ -222,7 +222,7 @@ function training_videos_enqueue_settings_assets( $hook ) {
     if ( false === strpos( (string) $hook, 'training-videos-settings' ) ) {
         return;
     }
-    $version = '1.4.1';
+    $version = '1.4.2';
     wp_enqueue_style(
         'training-videos-onboarding',
         plugins_url( 'assets/admin-onboarding.css', __FILE__ ),
@@ -550,7 +550,12 @@ function training_videos_settings_page_html() {
 // META BOXES
 // ============================================================================
 
-// Add custom meta box for Loom video URL
+// Add custom meta box for Loom video URL.
+// Priority order across all training_videos meta boxes (1.4.2 — critique fix):
+//   high    → Loom Video URL  (the source-of-truth field, fill it first)
+//   core    → Loom video info (preview + metadata, populated from URL)
+//   default → Description     (auto-fills from Loom on save)
+//   low     → Featured Image  (optional thumbnail override)
 function add_training_video_meta_box() {
     add_meta_box(
         'training_video_meta_box',
@@ -558,7 +563,7 @@ function add_training_video_meta_box() {
         'training_video_meta_box_html',
         'training_videos',
         'normal',
-        'default'
+        'high'
     );
 }
 add_action( 'add_meta_boxes', 'add_training_video_meta_box' );
@@ -601,10 +606,6 @@ function training_video_meta_box_html( $post ) {
               value="<?php echo esc_attr( $loom_video_url ); ?>" 
               style="width: 100%; max-width: 600px; padding: 8px;"
               placeholder="Paste Loom share or embed URL here...">
-   </p>
-   <p style="margin-top: 12px; font-size: 12px; color: #666;">
-       <strong>Thumbnail:</strong> auto-fetched from Loom on save (live status in the <em>Loom Data</em> sidebar).
-       To override, set a <strong>Featured Image</strong> — it'll replace the auto-fetched thumbnail on the archive grid + single-page sidebar.
    </p>
    <?php
 }
@@ -676,13 +677,10 @@ function training_video_description_meta_box_html( $post ) {
     $video_description = get_post_meta( $post->ID, '_video_description', true );
     wp_nonce_field( 'save_training_video_description_meta', 'training_video_description_meta_nonce' );
     ?>
-    <p style="margin: 0 0 8px 0; padding: 8px 10px; background: #f6f7f7; border-left: 3px solid #2271b1; font-size: 12px; color: #1d2327;">
-        Auto-fills from the producer-authored description in Loom on save (when this field is empty). Edit any time to override — your edit will be preserved on subsequent saves.
-    </p>
     <p>
-        <label for="video_description"><?php _e( 'Enter a 140 character description for this training video:', 'training-videos' ); ?></label>
+        <label for="video_description"><strong><?php _e( 'Description', 'training-videos' ); ?></strong></label>
         <br>
-        <textarea id="video_description" name="video_description" rows="3" cols="90"><?php echo esc_attr( $video_description ); ?></textarea>
+        <textarea id="video_description" name="video_description" rows="3" style="width: 100%; max-width: 100%;"><?php echo esc_attr( $video_description ); ?></textarea>
     </p>
     <?php
 }
@@ -714,14 +712,70 @@ add_action( 'save_post_training_videos', 'save_training_video_description_meta' 
 function training_videos_add_loom_data_meta_box() {
     add_meta_box(
         'training_video_loom_data',
-        'Loom Data',
+        'Loom video info',
         'training_videos_loom_data_meta_box_html',
         'training_videos',
-        'side',
-        'default'
+        'normal', // Main column — was 'side', moved 1.4.2.
+        'core'    // Renders below URL (high) and above Description (default).
     );
 }
 add_action( 'add_meta_boxes', 'training_videos_add_loom_data_meta_box' );
+
+/**
+ * Move the core Featured Image meta box from the sidebar into the main
+ * column too. WordPress registers `postimagediv` on `'side'` by default;
+ * we remove + re-add it to `'normal'` for the training_videos screen
+ * only. The override-help-note is injected via the
+ * `admin_post_thumbnail_html` filter below.
+ */
+function training_videos_relocate_featured_image_metabox() {
+    remove_meta_box( 'postimagediv', 'training_videos', 'side' );
+    add_meta_box(
+        'postimagediv',
+        __( 'Featured Image (thumbnail override)', 'training-videos' ),
+        'post_thumbnail_meta_box',
+        'training_videos',
+        'normal',
+        'low'
+    );
+}
+add_action( 'add_meta_boxes_training_videos', 'training_videos_relocate_featured_image_metabox' );
+
+/**
+ * Inject a single short note inside the Featured Image meta box. The
+ * canonical "how this page works" explainer lives at the top of the
+ * screen via `edit_form_after_title` — this is just the action-relevant
+ * micro-help.
+ */
+function training_videos_featured_image_help_text( $content, $post_id ) {
+    if ( get_post_type( $post_id ) !== 'training_videos' ) {
+        return $content;
+    }
+    $help = '<p style="margin: 0 0 8px 0; font-size: 12px; color: #50575e;">'
+          . 'Optional. Replaces the auto-fetched Loom thumbnail. Clear to revert.'
+          . '</p>';
+    return $help . $content;
+}
+add_filter( 'admin_post_thumbnail_html', 'training_videos_featured_image_help_text', 10, 2 );
+
+/**
+ * Canonical help banner — renders once at the top of the edit screen,
+ * above all meta boxes. Single source of truth for the auto-fetch story
+ * so the per-box banners stay short and action-focused.
+ */
+function training_videos_edit_screen_help_banner( $post ) {
+    if ( ! $post || get_post_type( $post ) !== 'training_videos' ) {
+        return;
+    }
+    ?>
+    <div style="margin: 16px 0 0; padding: 10px 14px; background: #f0f6fc; border-left: 4px solid #2271b1; border-radius: 2px; font-size: 13px; color: #1d2327; line-height: 1.5;">
+        <strong>How this page works:</strong> paste a Loom share URL below.
+        On save we auto-fetch the title, thumbnail, and the producer-authored description from Loom.
+        Edit the description any time to override; set a Featured Image at the bottom to override the thumbnail.
+    </div>
+    <?php
+}
+add_action( 'edit_form_after_title', 'training_videos_edit_screen_help_banner' );
 
 function training_videos_loom_data_meta_box_html( $post ) {
     $video_url      = get_post_meta( $post->ID, '_loom_video_url', true );
@@ -730,7 +784,7 @@ function training_videos_loom_data_meta_box_html( $post ) {
     $description    = get_post_meta( $post->ID, '_video_description', true );
 
     if ( ! $video_url ) {
-        echo '<p style="color: #666;">Add a Loom URL above to enable Loom data sync.</p>';
+        echo '<p style="margin: 0; color: #50575e;">Paste a Loom share URL above and save. We\'ll fetch the title, description, and thumbnail from Loom and show them here.</p>';
         return;
     }
 
@@ -748,58 +802,94 @@ function training_videos_loom_data_meta_box_html( $post ) {
         );
     }
 
+    // Resolve the thumbnail URL using the same priority chain the front-end
+    // uses (Featured Image → local cache → oEmbed live).
+    $thumbnail_url = function_exists( 'training_videos_get_loom_thumbnail_url' )
+        ? training_videos_get_loom_thumbnail_url( $video_url, $post->ID )
+        : false;
+
+    $resync_url = wp_nonce_url(
+        admin_url( 'admin-post.php?action=training_videos_resync&post=' . $post->ID ),
+        'training_videos_resync_' . $post->ID
+    );
+
     ?>
-    <p style="margin: 0 0 8px 0; font-size: 12px; color: #666;">
-        <strong>Video ID:</strong> <code style="font-size: 11px;"><?php echo esc_html( $loom_id ?: '—' ); ?></code>
-    </p>
-    <?php if ( $oembed ) : ?>
-        <p style="margin: 0 0 4px 0; font-size: 12px;">
-            <strong>Loom title:</strong><br>
-            <span style="color: #444;"><?php echo esc_html( $oembed['title'] ?? '—' ); ?></span>
-        </p>
-        <?php if ( ! empty( $oembed['duration'] ) ) : ?>
-            <p style="margin: 0 0 8px 0; font-size: 12px;">
-                <strong>Duration:</strong> <?php echo esc_html( gmdate( 'i:s', (int) $oembed['duration'] ) ); ?>
-            </p>
-        <?php endif; ?>
-    <?php endif; ?>
-
-    <p style="margin: 0 0 8px 0; font-size: 12px;">
-        <strong>Thumbnail:</strong><br>
-        <?php if ( $thumb_local ) : ?>
-            <span style="color: #2e7d32;">✓ Cached locally</span>
-            <?php if ( $thumb_attach ) : ?>
-                (<a href="<?php echo esc_url( get_edit_post_link( $thumb_attach ) ); ?>">attachment #<?php echo (int) $thumb_attach; ?></a>)
+    <div style="display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
+        <!-- Thumbnail preview -->
+        <div style="flex: 0 0 280px;">
+            <?php if ( $thumbnail_url ) : ?>
+                <div style="position: relative; padding-bottom: 56.25%; background: #1d2327; border-radius: 4px; overflow: hidden;">
+                    <img src="<?php echo esc_url( $thumbnail_url ); ?>"
+                         alt="<?php echo esc_attr( get_the_title( $post ) ); ?>"
+                         style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <p style="margin: 6px 0 0 0; font-size: 11px; color: #50575e; text-align: center;">
+                    <?php
+                    if ( has_post_thumbnail( $post ) ) {
+                        echo '<strong>Featured Image override</strong> in use';
+                    } elseif ( $thumb_local ) {
+                        echo '<strong>Cached locally</strong> · attachment ';
+                        if ( $thumb_attach ) {
+                            printf( '<a href="%s">#%d</a>', esc_url( get_edit_post_link( $thumb_attach ) ), (int) $thumb_attach );
+                        }
+                    } else {
+                        echo '<strong>Live from Loom oEmbed</strong> (will cache on next save)';
+                    }
+                    ?>
+                </p>
+            <?php else : ?>
+                <div style="padding-bottom: 56.25%; position: relative; background: #f0f0f1; border: 1px dashed #c3c4c7; border-radius: 4px;">
+                    <span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #8c8f94; font-size: 12px;">No thumbnail yet</span>
+                </div>
             <?php endif; ?>
-        <?php else : ?>
-            <span style="color: #b26500;">⚠ Not yet cached</span> (will download on next save)
-        <?php endif; ?>
-    </p>
+        </div>
 
-    <hr style="margin: 12px 0; border: none; border-top: 1px solid #e1e1e1;">
+        <!-- Metadata + actions -->
+        <div style="flex: 1; min-width: 240px;">
+            <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 4px 12px 4px 0; color: #50575e; vertical-align: top; width: 90px;">Video ID</td>
+                    <td style="padding: 4px 0;"><code style="font-size: 11px; background: #f0f0f1; padding: 2px 6px; border-radius: 3px;"><?php echo esc_html( $loom_id ?: '—' ); ?></code></td>
+                </tr>
+                <?php if ( $oembed ) : ?>
+                    <tr>
+                        <td style="padding: 4px 12px 4px 0; color: #50575e; vertical-align: top;">Loom title</td>
+                        <td style="padding: 4px 0; color: #1d2327;"><?php echo esc_html( $oembed['title'] ?? '—' ); ?></td>
+                    </tr>
+                    <?php if ( ! empty( $oembed['duration'] ) ) : ?>
+                        <tr>
+                            <td style="padding: 4px 12px 4px 0; color: #50575e;">Duration</td>
+                            <td style="padding: 4px 0;"><?php echo esc_html( gmdate( 'i:s', (int) $oembed['duration'] ) ); ?></td>
+                        </tr>
+                    <?php endif; ?>
+                <?php endif; ?>
+                <tr>
+                    <td style="padding: 4px 12px 4px 0; color: #50575e; vertical-align: top;">Description</td>
+                    <td style="padding: 4px 0; color: #1d2327;">
+                        <?php if ( trim( (string) $description ) !== '' ) : ?>
+                            <span style="color: #2e7d32;">✓ Set</span>
+                            <span style="color: #50575e;"> (<?php echo (int) strlen( $description ); ?> chars)</span>
+                        <?php else : ?>
+                            <span style="color: #b26500;">⚠ Empty</span>
+                            <span style="color: #50575e;"> — will auto-fill from Loom on save</span>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            </table>
 
-    <p style="margin: 0 0 8px 0; font-size: 12px; color: #666;">
-        Pull the latest description + thumbnail from Loom. The producer's description in Loom is copied verbatim.
-    </p>
+            <hr style="margin: 14px 0; border: none; border-top: 1px solid #e1e1e1;">
 
-    <p style="margin: 0; display: flex; gap: 8px; flex-wrap: wrap;">
-        <?php
-        $refresh_desc_url = wp_nonce_url(
-            admin_url( 'admin-post.php?action=training_videos_refresh_description&post=' . $post->ID ),
-            'training_videos_refresh_description_' . $post->ID
-        );
-        $refresh_thumb_url = wp_nonce_url(
-            admin_url( 'admin-post.php?action=training_videos_refresh_thumbnail&post=' . $post->ID ),
-            'training_videos_refresh_thumbnail_' . $post->ID
-        );
-        ?>
-        <a href="<?php echo esc_url( $refresh_desc_url ); ?>" class="button button-secondary">
-            ↻ Refresh description
-        </a>
-        <a href="<?php echo esc_url( $refresh_thumb_url ); ?>" class="button button-secondary">
-            ↻ Refresh thumbnail
-        </a>
-    </p>
+            <p style="margin: 0 0 10px 0; font-size: 12px; color: #50575e; line-height: 1.5;">
+                Pull a fresh title, description, and thumbnail from Loom. Manual edits to this post's description are preserved unless you clear it first.
+            </p>
+
+            <p style="margin: 0;">
+                <a href="<?php echo esc_url( $resync_url ); ?>" class="button button-secondary">
+                    <span aria-hidden="true">↻</span> Re-sync from Loom
+                </a>
+            </p>
+        </div>
+    </div>
     <?php
 }
 
@@ -852,6 +942,42 @@ function training_videos_handle_refresh_thumbnail() {
     exit;
 }
 add_action( 'admin_post_training_videos_refresh_thumbnail', 'training_videos_handle_refresh_thumbnail' );
+
+/**
+ * admin-post handler — combined re-sync (description + thumbnail).
+ * 1.4.2 critique fix: collapses the two-button refresh UX into one
+ * "Re-sync from Loom" action. Internally fires both handlers and
+ * reports a combined status message.
+ */
+function training_videos_handle_resync() {
+    $post_id = isset( $_GET['post'] ) ? (int) $_GET['post'] : 0;
+    if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+        wp_die( 'Permission denied.' );
+    }
+    check_admin_referer( 'training_videos_resync_' . $post_id );
+
+    $description = training_videos_refresh_description_from_loom( $post_id );
+    $thumb_url   = training_videos_sideload_loom_thumbnail( $post_id, true );
+
+    $parts = array();
+    $parts[] = ( false !== $description ) ? 'description ✓' : 'description —';
+    $parts[] = ( $thumb_url ) ? 'thumbnail ✓' : 'thumbnail —';
+    $msg = 'Re-synced from Loom: ' . implode( ', ', $parts );
+
+    $any_failed = ( false === $description ) || ! $thumb_url;
+
+    $args = array(
+        'post'        => $post_id,
+        'action'      => 'edit',
+        'tv_loom_msg' => $msg,
+    );
+    if ( $any_failed ) {
+        $args['tv_loom_err'] = 1;
+    }
+    wp_safe_redirect( add_query_arg( $args, admin_url( 'post.php' ) ) );
+    exit;
+}
+add_action( 'admin_post_training_videos_resync', 'training_videos_handle_resync' );
 
 /**
  * Register bulk action on the training_videos list table — card #2.
