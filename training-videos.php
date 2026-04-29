@@ -3,7 +3,7 @@
  * Plugin Name: Training Videos
  * Plugin URI: https://grainandmortar.com
  * Description: A custom plugin made by Grain & Mortar that displays training videos.
- * Version: 1.4.4
+ * Version: 1.4.5
  * Author: Grain & Mortar | Technical Director - Eric Downs (eric@grainandmortar.com)
  * Author URI: https://grainandmortar.com
  * License: Grain & Mortar 
@@ -27,6 +27,8 @@ require_once plugin_dir_path( __FILE__ ) . 'inc/brand-derive.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/font-detect.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/bulk-import.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/onboarding.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/license.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/heartbeat.php';
 
 // ============================================================================
 // AUTO-UPDATES via GitHub Releases (card #11)
@@ -54,6 +56,10 @@ if ( file_exists( $tv_puc_loader ) ) {
 // must be in the main plugin file so __FILE__ resolves correctly.
 register_activation_hook( __FILE__, 'training_videos_on_activate' );
 
+// Tear down the daily heartbeat cron on deactivation so a deactivated
+// site doesn't keep pinging the registry.
+register_deactivation_hook( __FILE__, 'training_videos_unregister_heartbeat' );
+
 
 
 // Enqueue self-contained styles + Font Awesome only on plugin pages.
@@ -63,7 +69,7 @@ function training_videos_enqueue_styles() {
     if ( ! is_singular( 'training_videos' ) && ! is_post_type_archive( 'training_videos' ) ) {
         return;
     }
-    $version = '1.4.4';
+    $version = '1.4.5';
     wp_enqueue_style(
         'training-videos-fontawesome',
         'https://use.fontawesome.com/releases/v6.5.1/css/all.css',
@@ -229,6 +235,7 @@ function training_videos_register_settings() {
     register_setting( 'training_videos_settings', 'training_videos_resource_description' );
     register_setting( 'training_videos_settings', 'training_videos_brand_primary' );
     register_setting( 'training_videos_settings', 'training_videos_brand_secondary' );
+    register_setting( 'training_videos_settings', TRAINING_VIDEOS_LICENSE_OPTION );
     foreach ( training_videos_brand_fields() as $field ) {
         register_setting( 'training_videos_settings', $field['option'] );
     }
@@ -243,7 +250,7 @@ function training_videos_enqueue_settings_assets( $hook ) {
     if ( false === strpos( (string) $hook, 'training-videos-settings' ) ) {
         return;
     }
-    $version = '1.4.4';
+    $version = '1.4.5';
     wp_enqueue_style(
         'training-videos-onboarding',
         plugins_url( 'assets/admin-onboarding.css', __FILE__ ),
@@ -276,6 +283,11 @@ function training_videos_settings_page_html() {
         update_option( 'training_videos_resource_title', sanitize_text_field( $_POST['resource_title'] ?? '' ) );
         update_option( 'training_videos_resource_url', esc_url_raw( $_POST['resource_url'] ?? '' ) );
         update_option( 'training_videos_resource_description', sanitize_text_field( $_POST['resource_description'] ?? '' ) );
+
+        // License key — saving fires `update_option_*` action which
+        // triggers a fresh validation in inc/license.php.
+        $license_key = sanitize_text_field( $_POST['training_videos_license_key'] ?? '' );
+        update_option( TRAINING_VIDEOS_LICENSE_OPTION, $license_key );
 
         // Brand Colors — primary + secondary drive the auto-derivation.
         $primary   = training_videos_sanitize_hex_color( $_POST['brand_primary'] ?? '' );
@@ -499,10 +511,63 @@ function training_videos_settings_page_html() {
                           placeholder="https://www.loom.com/share/abc123...&#10;https://www.loom.com/share/def456..."></textarea>
             </section>
 
+            <!-- License -->
+            <section class="tv-onboarding__step" id="license">
+                <header class="tv-onboarding__step-head">
+                    <span class="tv-onboarding__step-num">4</span>
+                    <div>
+                        <h2>License</h2>
+                        <p>Each install reports daily to the G&amp;M registry. A valid key keeps updates flowing and confirms the install with us.</p>
+                    </div>
+                </header>
+
+                <?php
+                $license_key    = (string) get_option( TRAINING_VIDEOS_LICENSE_OPTION, '' );
+                $license_status = training_videos_get_license_status();
+                $checked_at     = (int) get_option( TRAINING_VIDEOS_LICENSE_CHECKED_OPT, 0 );
+                $status_styles  = array(
+                    'active'      => array( 'bg' => '#d1f4d1', 'fg' => '#1f6f1f', 'label' => '✓ Active' ),
+                    'invalid'     => array( 'bg' => '#fce4e4', 'fg' => '#a01010', 'label' => '✗ Invalid or expired' ),
+                    'unreachable' => array( 'bg' => '#fff0c2', 'fg' => '#7a5500', 'label' => '⚠ Server unreachable (cached status active)' ),
+                    'unlicensed'  => array( 'bg' => '#f0f0f1', 'fg' => '#50575e', 'label' => 'No key set' ),
+                );
+                $st = $status_styles[ $license_status ] ?? $status_styles['unlicensed'];
+                ?>
+
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><label for="training_videos_license_key">License key</label></th>
+                        <td>
+                            <input type="text"
+                                   id="training_videos_license_key"
+                                   name="training_videos_license_key"
+                                   value="<?php echo esc_attr( $license_key ); ?>"
+                                   class="large-text"
+                                   placeholder="GM-XXXXXX-XXXXXX-XXXXXX"
+                                   style="font-family: ui-monospace, 'SF Mono', Menlo, monospace;">
+                            <p class="description">G&amp;M-issued. Saving here triggers an immediate validation.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Status</th>
+                        <td>
+                            <span style="display: inline-block; padding: 4px 10px; border-radius: 4px; background: <?php echo esc_attr( $st['bg'] ); ?>; color: <?php echo esc_attr( $st['fg'] ); ?>; font-size: 13px; font-weight: 500;">
+                                <?php echo esc_html( $st['label'] ); ?>
+                            </span>
+                            <?php if ( $checked_at ) : ?>
+                                <span style="margin-left: 10px; color: #50575e; font-size: 12px;">
+                                    Last checked <?php echo esc_html( human_time_diff( $checked_at, time() ) ); ?> ago
+                                </span>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                </table>
+            </section>
+
             <!-- Documentation Resource -->
             <section class="tv-onboarding__step">
                 <header class="tv-onboarding__step-head">
-                    <span class="tv-onboarding__step-num">4</span>
+                    <span class="tv-onboarding__step-num">5</span>
                     <div>
                         <h2>Documentation resource</h2>
                         <p>Optional link to a Google Doc or external resource that appears above the video grid.</p>
@@ -572,7 +637,7 @@ function training_videos_settings_page_html() {
 // ============================================================================
 
 // Add custom meta box for Loom video URL.
-// Priority order across all training_videos meta boxes (1.4.4 — critique fix):
+// Priority order across all training_videos meta boxes (1.4.5 — critique fix):
 //   high    → Loom Video URL  (the source-of-truth field, fill it first)
 //   core    → Loom video info (preview + metadata, populated from URL)
 //   default → Description     (auto-fills from Loom on save)
@@ -718,7 +783,7 @@ function training_videos_add_loom_data_meta_box() {
         'Loom video info',
         'training_videos_loom_data_meta_box_html',
         'training_videos',
-        'normal', // Main column — was 'side', moved 1.4.4.
+        'normal', // Main column — was 'side', moved 1.4.5.
         'core'    // Renders below URL (high) and above Description (default).
     );
 }
@@ -948,7 +1013,7 @@ add_action( 'admin_post_training_videos_refresh_thumbnail', 'training_videos_han
 
 /**
  * admin-post handler — combined re-sync (description + thumbnail).
- * 1.4.4 critique fix: collapses the two-button refresh UX into one
+ * 1.4.5 critique fix: collapses the two-button refresh UX into one
  * "Re-sync from Loom" action. Internally fires both handlers and
  * reports a combined status message.
  */

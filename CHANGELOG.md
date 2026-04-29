@@ -4,6 +4,20 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.4.5] — 2026-04-28
+
+### Added
+- **License key + daily heartbeat (card #9, plugin side).**
+  - `inc/license.php` — `training_videos_get_license_status()` returns `active` / `invalid` / `unreachable` / `unlicensed`. Validates against `TRAINING_VIDEOS_LICENSE_SERVER` (default `https://portal.grainandmortar.com/api/training-videos`, override via `define()`). Transient-cached 24h, with a 7-day grace window so a transient server outage doesn't cascade to "license invalid" across every install.
+  - `inc/heartbeat.php` — daily WP cron POSTs `{site_url, plugin_version, wp_version, php_version, multisite, active_theme, license_key, video_count, is_local, sent_at}` to the registry. Fire-and-forget (`blocking: false`) so cron never stalls. Local-by-Flywheel + .test/.localhost hosts are tagged `is_local: true` so the server can flag them as dev installs and not bill clients.
+  - License section added to Settings (step 4 of the wizard layout), with status badge (Active / Invalid / Server unreachable / No key set) and "last checked" timestamp.
+  - Admin notice fires on every wp-admin page when the license is unlicensed or invalid; never fires on `unreachable` (server outage is our problem, not the admin's).
+  - **Soft-fail by design.** Front-end templates render normally regardless of license state, per the architectural decision.
+- `register_deactivation_hook` now tears down the heartbeat cron event so a deactivated install doesn't keep pinging the registry.
+
+### Notes
+- Server endpoints (`/heartbeat`, `/license/validate`) live in the G&M Maintenance Portal — see card filed on `gm-portal`. Until those endpoints exist, the plugin reports "Server unreachable" (within grace) — no breakage, no false-negative on activation.
+
 ## [1.4.4] — 2026-04-28
 
 ### Added
