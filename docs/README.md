@@ -9,6 +9,7 @@ Internal docs for the `gm-training-videos` plugin. Plugin code, versioning, and 
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Canonical "how the whole system works" — plugin ↔ portal flow, wire format, caching + grace logic, failure surfaces |
 | [TECHNOLOGY-STACK.md](TECHNOLOGY-STACK.md) | What this project runs on — language, framework, hosting, integrations, secrets, deploy flow |
 | [SITES.md](SITES.md) | Deployment registry — every client site running the plugin (interim, hand-maintained until all installs are on ≥v1.4.4) |
+| [CLAUDE-ONBOARDING.md](CLAUDE-ONBOARDING.md) | Runbook for Claude Code agents asked to walk a client install through the onboarding wizard — where to find brand colors/fonts, how to fill each step, common post-wizard tweaks |
 
 ## Subdirectories
 

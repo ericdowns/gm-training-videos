@@ -4,6 +4,14 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.4.6] — 2026-04-29
+
+### Added
+- **`docs/CLAUDE-ONBOARDING.md`** — runbook for Claude Code agents asked to walk a client install through the onboarding wizard. Documents where to find brand colors (`tailwind.config.js`, `theme.json`, masterdoc), where to find fonts (theme enqueues, font stacks), how to fill each wizard step (including the self-hosted-licensed-font edge case), where to grab the license key from 1Password, and common post-wizard tweaks via Settings → Advanced. Ships with the plugin so any future agent dropped into a client install can read it locally without round-tripping to the master repo.
+
+### Notes
+- File is in `docs/` so it travels with every client install. Not excluded from the release zip — intentional, since the value is having it locally on every site.
+
 ## [1.4.5] — 2026-04-28
 
 ### Added
