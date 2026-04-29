@@ -4,6 +4,19 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.4.0] — 2026-04-28
+
+### Added
+- **Onboarding wizard** at `Training Videos → Onboarding`. Three-step single-page flow: Brand colors (primary + secondary inputs with live-preview swatch grid + mini preview), Fonts (auto-detected from the active theme), Bulk Import (paste a list of Loom share URLs). Triggered automatically on plugin activation; re-runnable any time.
+- **Brand auto-derivation** (`inc/brand-derive.php`) — `training_videos_derive_palette($primary, $secondary)` returns a 7-surface palette via HSL math. Page bg + border tint from secondary hue at low saturation; body text from primary hue with WCAG AA contrast guard (falls back to `#1A1A1A` if the derived value fails). Card #4.
+- **Font auto-detection** (`inc/font-detect.php`) — `training_videos_detect_theme_fonts()` reads `wp_get_global_settings(['typography','fontFamilies'])` for block themes and parses Google Fonts URLs from `wp_styles()->registered` for classic themes. Falls back to system stack.
+- **Loom bulk import** (`inc/bulk-import.php`) — paste-list of share URLs, idempotent insert via existing public-oEmbed flow. No Loom auth required (descriptions, titles, thumbnails come from `loom.com/v1/oembed`). Card #5 v1.
+
+### Changed
+- **Settings page restructured** — top section now drives palette via 2 colors with live preview, original 7-color form moved under `<details>` "Advanced — override individual surface colors" disclosure. Save handler computes derived values from primary + secondary, with Advanced overrides winning when set.
+- Settings page now also includes Bulk Import textarea + Documentation Resource fields in a single unified form.
+- Plugin-root URL now exposed via `TRAINING_VIDEOS_PLUGIN_URL` constant so `inc/*` files can resolve `assets/` correctly.
+
 ## [1.3.7] — 2026-04-28
 
 ### Changed

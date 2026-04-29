@@ -3,7 +3,7 @@
  * Plugin Name: Training Videos
  * Plugin URI: https://grainandmortar.com
  * Description: A custom plugin made by Grain & Mortar that displays training videos.
- * Version: 1.3.7
+ * Version: 1.4.0
  * Author: Grain & Mortar | Technical Director - Eric Downs (eric@grainandmortar.com)
  * Author URI: https://grainandmortar.com
  * License: Grain & Mortar 
@@ -14,8 +14,24 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// Plugin root URL — used by inc/* files to resolve assets/. Without this
+// constant, plugin_dir_url(__FILE__) inside inc/onboarding.php would
+// resolve to /inc/ and assets would 404.
+if ( ! defined( 'TRAINING_VIDEOS_PLUGIN_URL' ) ) {
+    define( 'TRAINING_VIDEOS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+}
+
 require_once plugin_dir_path( __FILE__ ) . 'inc/loom-helpers.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/brand.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/brand-derive.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/font-detect.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/bulk-import.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/onboarding.php';
+
+// Onboarding flag — set on activation, redirected to the wizard on first
+// admin pageload. The actual logic lives in inc/onboarding.php; this hook
+// must be in the main plugin file so __FILE__ resolves correctly.
+register_activation_hook( __FILE__, 'training_videos_on_activate' );
 
 
 
@@ -26,7 +42,7 @@ function training_videos_enqueue_styles() {
     if ( ! is_singular( 'training_videos' ) && ! is_post_type_archive( 'training_videos' ) ) {
         return;
     }
-    $version = '1.3.7';
+    $version = '1.4.0';
     wp_enqueue_style(
         'training-videos-fontawesome',
         'https://use.fontawesome.com/releases/v6.5.1/css/all.css',
@@ -186,11 +202,38 @@ function training_videos_register_settings() {
     register_setting( 'training_videos_settings', 'training_videos_resource_title' );
     register_setting( 'training_videos_settings', 'training_videos_resource_url' );
     register_setting( 'training_videos_settings', 'training_videos_resource_description' );
+    register_setting( 'training_videos_settings', 'training_videos_brand_primary' );
+    register_setting( 'training_videos_settings', 'training_videos_brand_secondary' );
     foreach ( training_videos_brand_fields() as $field ) {
         register_setting( 'training_videos_settings', $field['option'] );
     }
 }
 add_action( 'admin_init', 'training_videos_register_settings' );
+
+/**
+ * Enqueue the wizard's CSS + JS on the Settings page too — same swatch
+ * + live-preview UX.
+ */
+function training_videos_enqueue_settings_assets( $hook ) {
+    if ( false === strpos( (string) $hook, 'training-videos-settings' ) ) {
+        return;
+    }
+    $version = '1.4.0';
+    wp_enqueue_style(
+        'training-videos-onboarding',
+        plugins_url( 'assets/admin-onboarding.css', __FILE__ ),
+        array(),
+        $version
+    );
+    wp_enqueue_script(
+        'training-videos-onboarding',
+        plugins_url( 'assets/admin-onboarding.js', __FILE__ ),
+        array(),
+        $version,
+        true
+    );
+}
+add_action( 'admin_enqueue_scripts', 'training_videos_enqueue_settings_assets' );
 
 /**
  * Settings page HTML
@@ -200,17 +243,35 @@ function training_videos_settings_page_html() {
         return;
     }
 
+    $brand_fields  = training_videos_brand_fields();
+    $import_result = null;
+
     // Save settings
     if ( isset( $_POST['training_videos_settings_nonce'] ) && wp_verify_nonce( $_POST['training_videos_settings_nonce'], 'training_videos_settings' ) ) {
         update_option( 'training_videos_resource_title', sanitize_text_field( $_POST['resource_title'] ?? '' ) );
         update_option( 'training_videos_resource_url', esc_url_raw( $_POST['resource_url'] ?? '' ) );
         update_option( 'training_videos_resource_description', sanitize_text_field( $_POST['resource_description'] ?? '' ) );
 
-        foreach ( training_videos_brand_fields() as $key => $field ) {
+        // Brand Colors — primary + secondary drive the auto-derivation.
+        $primary   = training_videos_sanitize_hex_color( $_POST['brand_primary'] ?? '' );
+        $secondary = training_videos_sanitize_hex_color( $_POST['brand_secondary'] ?? '' );
+        update_option( 'training_videos_brand_primary',   $primary );
+        update_option( 'training_videos_brand_secondary', $secondary );
+
+        $derived = ( $primary && $secondary )
+            ? training_videos_derive_palette( $primary, $secondary )
+            : null;
+
+        // For each brand field: Advanced override wins, else derived value,
+        // else fall back to whatever was already in the option (no-op).
+        foreach ( $brand_fields as $key => $field ) {
             $raw = $_POST[ 'brand_' . $key ] ?? '';
             switch ( $field['type'] ) {
                 case 'color':
                     $clean = training_videos_sanitize_hex_color( $raw );
+                    if ( '' === $clean && $derived && isset( $derived[ $key ] ) ) {
+                        $clean = $derived[ $key ];
+                    }
                     break;
                 case 'font':
                     $clean = training_videos_sanitize_font_family( $raw );
@@ -224,75 +285,256 @@ function training_videos_settings_page_html() {
             update_option( $field['option'], $clean );
         }
 
+        // Bulk import (optional).
+        $bulk = trim( (string) ( $_POST['bulk_import_urls'] ?? '' ) );
+        if ( '' !== $bulk ) {
+            $import_result = training_videos_bulk_import( $bulk );
+        }
+
         echo '<div class="notice notice-success"><p>Settings saved.</p></div>';
+        if ( is_array( $import_result ) ) {
+            printf(
+                '<div class="notice notice-info"><p>Bulk import — created: <strong>%d</strong> · skipped: <strong>%d</strong> · failed: <strong>%d</strong>.</p></div>',
+                count( $import_result['created'] ),
+                count( $import_result['skipped'] ),
+                count( $import_result['failed'] )
+            );
+        }
     }
 
-    $resource_title = get_option( 'training_videos_resource_title', '' );
-    $resource_url = get_option( 'training_videos_resource_url', '' );
+    $resource_title       = get_option( 'training_videos_resource_title', '' );
+    $resource_url         = get_option( 'training_videos_resource_url', '' );
     $resource_description = get_option( 'training_videos_resource_description', '' );
-    $brand          = training_videos_get_brand();
-    $brand_fields   = training_videos_brand_fields();
+    $brand                = training_videos_get_brand();
+
+    $primary   = (string) get_option( 'training_videos_brand_primary',   '' );
+    $secondary = (string) get_option( 'training_videos_brand_secondary', '' );
+    if ( '' === $primary )   { $primary   = '#112D40'; }
+    if ( '' === $secondary ) { $secondary = '#FFBC21'; }
+
+    // Auto-fill font fields from theme detection if currently blank.
+    $detected = training_videos_detect_theme_fonts();
+    if ( '' === $brand['heading_font'] && '' !== $detected['heading_family'] ) {
+        $brand['heading_font'] = $detected['heading_family'];
+    }
+    if ( '' === $brand['body_font'] && '' !== $detected['body_family'] ) {
+        $brand['body_font'] = $detected['body_family'];
+    }
+    if ( '' === $brand['font_url'] && '' !== $detected['google_url'] ) {
+        $brand['font_url'] = $detected['google_url'];
+    }
     ?>
-    <div class="wrap">
+    <div class="wrap tv-onboarding">
         <h1>Training Videos Settings</h1>
 
         <form method="post">
             <?php wp_nonce_field( 'training_videos_settings', 'training_videos_settings_nonce' ); ?>
 
-            <h2>Documentation Resource</h2>
-            <p class="description">Add a link to a Google Doc or other documentation that will appear at the top of the Training Library. This is separate from video content.</p>
+            <!-- Brand Colors -->
+            <section class="tv-onboarding__step">
+                <header class="tv-onboarding__step-head">
+                    <span class="tv-onboarding__step-num">1</span>
+                    <div>
+                        <h2>Brand colors</h2>
+                        <p>Two colors. The other surfaces auto-derive. Override individual values under <em>Advanced</em> below.</p>
+                    </div>
+                </header>
 
-            <table class="form-table">
-                <tr>
-                    <th scope="row"><label for="resource_title">Resource Title</label></th>
-                    <td>
-                        <input type="text" id="resource_title" name="resource_title" value="<?php echo esc_attr( $resource_title ); ?>" class="regular-text" placeholder="e.g., Module Documentation">
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row"><label for="resource_url">Resource URL</label></th>
-                    <td>
-                        <input type="url" id="resource_url" name="resource_url" value="<?php echo esc_attr( $resource_url ); ?>" class="large-text" placeholder="https://docs.google.com/document/d/...">
-                        <p class="description">Google Doc URL or any external link</p>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row"><label for="resource_description">Description</label></th>
-                    <td>
-                        <input type="text" id="resource_description" name="resource_description" value="<?php echo esc_attr( $resource_description ); ?>" class="large-text" placeholder="e.g., Complete guide to all website modules">
-                    </td>
-                </tr>
-            </table>
+                <div class="tv-onboarding__color-grid">
+                    <label class="tv-onboarding__color-input">
+                        <span>Primary <small>(headers, dark surfaces)</small></span>
+                        <div class="tv-onboarding__color-row">
+                            <input type="color" id="tv-color-primary-picker"
+                                   value="<?php echo esc_attr( $primary ); ?>"
+                                   data-tv-color-target="brand_primary">
+                            <input type="text" id="tv-color-primary"
+                                   name="brand_primary"
+                                   value="<?php echo esc_attr( $primary ); ?>"
+                                   pattern="^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$"
+                                   data-tv-color-source="primary">
+                        </div>
+                    </label>
 
-            <hr style="margin: 30px 0;">
+                    <label class="tv-onboarding__color-input">
+                        <span>Secondary <small>(CTAs, accents)</small></span>
+                        <div class="tv-onboarding__color-row">
+                            <input type="color" id="tv-color-secondary-picker"
+                                   value="<?php echo esc_attr( $secondary ); ?>"
+                                   data-tv-color-target="brand_secondary">
+                            <input type="text" id="tv-color-secondary"
+                                   name="brand_secondary"
+                                   value="<?php echo esc_attr( $secondary ); ?>"
+                                   pattern="^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$"
+                                   data-tv-color-source="secondary">
+                        </div>
+                    </label>
+                </div>
 
-            <h2>Brand Theme</h2>
-            <p class="description">
-                Override the default California Forever palette and fonts on this site. Leave any field empty to fall back to the plugin default.
-                Hex colors only (e.g. <code>#272727</code>). Font families take any valid CSS <code>font-family</code> value.
-            </p>
+                <h3 class="tv-onboarding__preview-title">Derived palette</h3>
+                <div class="tv-onboarding__swatches" id="tv-swatch-grid">
+                    <?php
+                    $swatch_labels = array(
+                        'bg'         => 'Page background',
+                        'heading'    => 'Heading + header bg',
+                        'text'       => 'Body text',
+                        'accent'     => 'Accent (CTAs)',
+                        'accent_alt' => 'Accent hover',
+                        'border'     => 'Borders',
+                        'card_bg'    => 'Card background',
+                    );
+                    foreach ( $swatch_labels as $key => $label ) :
+                        ?>
+                        <div class="tv-onboarding__swatch" data-tv-swatch="<?php echo esc_attr( $key ); ?>">
+                            <div class="tv-onboarding__swatch-color"></div>
+                            <div class="tv-onboarding__swatch-meta">
+                                <strong><?php echo esc_html( $label ); ?></strong>
+                                <code class="tv-onboarding__swatch-hex">—</code>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
 
-            <table class="form-table">
-                <?php foreach ( $brand_fields as $key => $field ) :
-                    $value = $brand[ $key ];
-                    $id    = 'brand_' . $key;
-                    ?>
-                    <tr>
-                        <th scope="row"><label for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $field['label'] ); ?></label></th>
-                        <td>
-                            <?php if ( 'color' === $field['type'] ) : ?>
-                                <input type="text" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $id ); ?>" value="<?php echo esc_attr( $value ); ?>" class="regular-text" placeholder="#FFBC21" pattern="^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$">
-                                <input type="color" value="<?php echo esc_attr( $value ?: '#000000' ); ?>" onchange="this.previousElementSibling.value=this.value.toUpperCase();" style="vertical-align: middle; margin-left: 8px;">
-                            <?php elseif ( 'url' === $field['type'] ) : ?>
-                                <input type="url" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $id ); ?>" value="<?php echo esc_attr( $value ); ?>" class="large-text" placeholder="https://fonts.googleapis.com/css2?family=Inter">
+                <div class="tv-onboarding__preview" id="tv-mini-preview">
+                    <div class="tv-onboarding__preview-header">
+                        <span class="tv-onboarding__preview-brand">🎓 Training Library</span>
+                        <span class="tv-onboarding__preview-cta">Manage</span>
+                    </div>
+                    <div class="tv-onboarding__preview-body">
+                        <h4 class="tv-onboarding__preview-h">Welcome video</h4>
+                        <p class="tv-onboarding__preview-p">A short tour of how to use this library.</p>
+                        <div class="tv-onboarding__preview-card">
+                            <span class="tv-onboarding__preview-card-thumb"></span>
+                            <div>
+                                <strong>How to add a page</strong>
+                                <small>Step-by-step page creation in the editor.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Fonts -->
+            <section class="tv-onboarding__step">
+                <header class="tv-onboarding__step-head">
+                    <span class="tv-onboarding__step-num">2</span>
+                    <div>
+                        <h2>Fonts</h2>
+                        <p>
+                            <?php if ( '' !== $detected['body_family'] || '' !== $detected['heading_family'] ) : ?>
+                                Auto-detected from your active theme. Edit if needed.
                             <?php else : ?>
-                                <input type="text" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $id ); ?>" value="<?php echo esc_attr( $value ); ?>" class="regular-text" placeholder="<?php echo esc_attr( $field['help'] ); ?>">
+                                Optional — leave blank to use the system stack.
                             <?php endif; ?>
-                            <p class="description"><?php echo esc_html( $field['help'] ); ?></p>
+                        </p>
+                    </div>
+                </header>
+
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><label for="brand_heading_font">Heading family</label></th>
+                        <td>
+                            <input type="text" id="brand_heading_font" name="brand_heading_font"
+                                   value="<?php echo esc_attr( $brand['heading_font'] ); ?>"
+                                   class="regular-text"
+                                   placeholder='"Playfair Display", serif'>
                         </td>
                     </tr>
-                <?php endforeach; ?>
-            </table>
+                    <tr>
+                        <th scope="row"><label for="brand_body_font">Body family</label></th>
+                        <td>
+                            <input type="text" id="brand_body_font" name="brand_body_font"
+                                   value="<?php echo esc_attr( $brand['body_font'] ); ?>"
+                                   class="regular-text"
+                                   placeholder='"Inter", sans-serif'>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="brand_font_url">Font URL</label></th>
+                        <td>
+                            <input type="url" id="brand_font_url" name="brand_font_url"
+                                   value="<?php echo esc_attr( $brand['font_url'] ); ?>"
+                                   class="large-text"
+                                   placeholder="https://fonts.googleapis.com/css2?family=Inter">
+                        </td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Bulk Import -->
+            <section class="tv-onboarding__step">
+                <header class="tv-onboarding__step-head">
+                    <span class="tv-onboarding__step-num">3</span>
+                    <div>
+                        <h2>Bulk import from Loom <small>(optional)</small></h2>
+                        <p>Paste Loom share URLs, one per line. Title, description, and thumbnail come from Loom's public oEmbed. Existing posts are skipped.</p>
+                    </div>
+                </header>
+
+                <textarea name="bulk_import_urls" rows="6" class="large-text code"
+                          placeholder="https://www.loom.com/share/abc123...&#10;https://www.loom.com/share/def456..."></textarea>
+            </section>
+
+            <!-- Documentation Resource -->
+            <section class="tv-onboarding__step">
+                <header class="tv-onboarding__step-head">
+                    <span class="tv-onboarding__step-num">4</span>
+                    <div>
+                        <h2>Documentation resource</h2>
+                        <p>Optional link to a Google Doc or external resource that appears above the video grid.</p>
+                    </div>
+                </header>
+
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><label for="resource_title">Resource title</label></th>
+                        <td>
+                            <input type="text" id="resource_title" name="resource_title" value="<?php echo esc_attr( $resource_title ); ?>" class="regular-text" placeholder="e.g., Module Documentation">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="resource_url">Resource URL</label></th>
+                        <td>
+                            <input type="url" id="resource_url" name="resource_url" value="<?php echo esc_attr( $resource_url ); ?>" class="large-text" placeholder="https://docs.google.com/document/d/...">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="resource_description">Description</label></th>
+                        <td>
+                            <input type="text" id="resource_description" name="resource_description" value="<?php echo esc_attr( $resource_description ); ?>" class="large-text" placeholder="e.g., Complete guide to all website modules">
+                        </td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Advanced -->
+            <details class="tv-onboarding__step" style="padding: 0; cursor: default;">
+                <summary style="padding: 18px 28px; cursor: pointer; font-weight: 600; font-size: 14px; list-style: revert;">
+                    Advanced — override individual surface colors
+                </summary>
+                <div style="padding: 0 28px 24px;">
+                    <p class="description" style="margin: 0 0 16px;">
+                        Each derived value can be overridden here. Leave any field <strong>empty</strong> to fall back to the auto-derived value from primary + secondary above.
+                    </p>
+                    <table class="form-table">
+                        <?php foreach ( $brand_fields as $key => $field ) :
+                            if ( 'color' !== $field['type'] ) {
+                                continue; // Fonts already handled above.
+                            }
+                            $value = $brand[ $key ];
+                            $id    = 'brand_' . $key;
+                            ?>
+                            <tr>
+                                <th scope="row"><label for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $field['label'] ); ?></label></th>
+                                <td>
+                                    <input type="text" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $id ); ?>" value="<?php echo esc_attr( $value ); ?>" class="regular-text" placeholder="#FFBC21" pattern="^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$">
+                                    <input type="color" value="<?php echo esc_attr( $value ?: '#000000' ); ?>" onchange="this.previousElementSibling.value=this.value.toUpperCase();" style="vertical-align: middle; margin-left: 8px;">
+                                    <p class="description"><?php echo esc_html( $field['help'] ); ?></p>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </table>
+                </div>
+            </details>
 
             <?php submit_button( 'Save Settings' ); ?>
         </form>

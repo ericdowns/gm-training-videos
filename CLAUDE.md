@@ -5,7 +5,7 @@ This document provides guidance to Claude Code when working with the Training Vi
 ## Plugin Overview
 
 **Name:** Training Videos
-**Version:** 1.3.5
+**Version:** 1.4.0
 **Author:** Eric Downs - Technical Director at Grain & Mortar
 **Purpose:** Provide clients with a professional training video library portal using Loom videos
 
@@ -147,17 +147,27 @@ cp -r /Users/edowns/Projects/gm-training-videos /path/to/site/wp-content/plugins
 
 ```
 training-videos/
-├── training-videos.php           # Main plugin file (version, post type, settings)
+├── training-videos.php           # Main plugin file — registers CPT, Settings + Onboarding submenus, activation hook, defines TRAINING_VIDEOS_PLUGIN_URL
 ├── CLAUDE.md                     # This documentation (for AI)
 ├── README.md                     # Installation/usage docs (for humans)
 ├── loom-helper.php               # Standalone URL conversion tool
+├── inc/
+│   ├── brand.php                 # Brand-fields registry + render_brand_styles() inline overlay
+│   ├── brand-derive.php          # 2-color → 7-surface palette derivation (HSL math + WCAG AA guard)
+│   ├── font-detect.php           # Parent-theme font auto-detection (theme.json + Google Fonts URL parser)
+│   ├── loom-helpers.php          # oEmbed cache, thumbnail sideloading, description population
+│   ├── bulk-import.php           # Loom share-URL paste-list importer (idempotent)
+│   └── onboarding.php            # 3-step wizard, activation hook, admin notice, asset enqueue
 ├── templates/
 │   ├── training-header.php       # Navy header with nav
 │   ├── training-footer.php       # Navy footer with credits
 │   ├── archive-training_videos.php  # Thumbnail grid + resource card
 │   └── single-training_videos.php   # Video player with sidebar
+├── assets/
+│   ├── admin-onboarding.css      # Wizard + Settings page styles (.tv-onboarding scope)
+│   └── admin-onboarding.js       # Live palette preview (mirrors brand-derive.php HSL math)
 ├── css/
-│   └── training-videos.css       # Plugin styles — enqueue currently disabled (see training-videos.php:25). Re-enable when brand-theming card #4 lands.
+│   └── training-videos.css       # Frontend plugin styles — enqueued only on training_videos pages
 ├── docs/
 │   ├── README.md                 # Master index for plugin docs
 │   └── SITES.md                  # Deployment registry — every site running this plugin
@@ -278,7 +288,8 @@ Plugin work is tracked as GitHub Issue cards on this repo using the `/cards` wor
 
 | Theme | Card(s) | What it unlocks |
 |---|---|---|
-| **Brand theming separation** | [#4](https://github.com/ericdowns/gm-training-videos/issues/4) | Drive colors and fonts from a per-site Settings tab so we stop forking templates per client (Xomox is the smoking gun). |
+| **Brand theming separation** ✅ shipped 1.4.0 | [#4](https://github.com/ericdowns/gm-training-videos/issues/4) | Drive colors and fonts from a per-site Settings tab so we stop forking templates per client (Xomox was the smoking gun). 1.4.0 added 2-color auto-derivation + theme.json font detection. |
+| **Bulk import from Loom (v1)** ✅ shipped 1.4.0 | [#5](https://github.com/ericdowns/gm-training-videos/issues/5) | Paste-list of Loom share URLs in Settings → posts auto-created via public oEmbed. Folder-URL enumeration deferred (needs cookie or hosted proxy). |
 | **License key + phone-home registration** | [#9](https://github.com/ericdowns/gm-training-videos/issues/9) | Each install reports its URL + version + license to a central server. Lets us see who has it activated and revoke when contracts end. |
 | **Central deployment dashboard** | [#10](https://github.com/ericdowns/gm-training-videos/issues/10) | Web app that consumes the phone-home pings — shows every site, version, last-seen, license status. Push-update button per site. |
 | **GitHub Releases + native WP update flow** | [#11](https://github.com/ericdowns/gm-training-videos/issues/11) | Tag-driven releases with auto-zip; plugin uses `plugin-update-checker` so WP's "Update available" banner just works. |
@@ -291,6 +302,13 @@ Plugin work is tracked as GitHub Issue cards on this repo using the `/cards` wor
 ## Changelog
 
 Full per-version history is in [CHANGELOG.md](CHANGELOG.md). Highlights:
+
+### v1.4.0 — Onboarding + 2-color auto-derivation + bulk import
+- **Onboarding wizard** at Training Videos → Onboarding. Activation hook redirects on first install. 3 steps: Brand colors (2 inputs + live preview swatches + mini preview), Fonts (auto-detected from theme.json/Google Fonts), Bulk import (paste Loom share URLs).
+- **Brand auto-derivation** (card #4) — `inc/brand-derive.php` derives 7 surfaces from primary + secondary using HSL math with WCAG AA contrast guard.
+- **Loom bulk import v1** (card #5) — paste-list of share URLs, idempotent insert via existing public-oEmbed flow. No Loom auth required for v1.
+- **Settings page restructured** — top section drives palette via 2 colors with live preview, original 7-color form moved under `<details>` "Advanced" disclosure.
+- New constant `TRAINING_VIDEOS_PLUGIN_URL` so `inc/*` files can resolve `assets/` correctly.
 
 ### v1.3.x — Loom oEmbed integration + brand theming + header polish
 - Auto-populate `_video_description` from Loom oEmbed on save (cards #2, #6, #7, #8) — never overwrites manual edits. Refresh buttons in the edit screen + bulk actions on the admin list.

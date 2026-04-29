@@ -1,0 +1,257 @@
+/**
+ * Onboarding wizard styles. Scoped to .tv-onboarding so nothing bleeds
+ * into the rest of wp-admin.
+ */
+
+.tv-onboarding {
+	max-width: 960px;
+}
+
+.tv-onboarding h1 {
+	margin-bottom: 4px;
+}
+
+.tv-onboarding__intro {
+	color: #50575e;
+	margin-bottom: 24px;
+	font-size: 14px;
+}
+
+.tv-onboarding__form {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.tv-onboarding__step {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 8px;
+	padding: 24px 28px;
+}
+
+.tv-onboarding__step-head {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin-bottom: 20px;
+}
+
+.tv-onboarding__step-head h2 {
+	margin: 0;
+	font-size: 18px;
+}
+
+.tv-onboarding__step-head p {
+	margin: 4px 0 0;
+	color: #50575e;
+	font-size: 13px;
+}
+
+.tv-onboarding__step-num {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: #2271b1;
+	color: #fff;
+	font-weight: 600;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+/* Color inputs */
+.tv-onboarding__color-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 24px;
+	margin-bottom: 28px;
+}
+
+.tv-onboarding__color-input span {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 6px;
+	font-size: 13px;
+}
+
+.tv-onboarding__color-input small {
+	font-weight: 400;
+	color: #50575e;
+}
+
+.tv-onboarding__color-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.tv-onboarding__color-row input[type="color"] {
+	width: 48px;
+	height: 40px;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	background: none;
+	cursor: pointer;
+	padding: 0;
+	flex-shrink: 0;
+}
+
+.tv-onboarding__color-row input[type="text"] {
+	flex: 1;
+	height: 40px;
+	font-family: ui-monospace, "SF Mono", Menlo, monospace;
+	font-size: 13px;
+	text-transform: uppercase;
+}
+
+/* Swatch grid */
+.tv-onboarding__preview-title {
+	font-size: 13px;
+	margin: 0 0 12px;
+	color: #50575e;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.tv-onboarding__swatches {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	gap: 12px;
+	margin-bottom: 28px;
+}
+
+.tv-onboarding__swatch {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 8px 10px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+}
+
+.tv-onboarding__swatch-color {
+	width: 36px;
+	height: 36px;
+	border-radius: 4px;
+	background: #ddd;
+	border: 1px solid transparent;
+	flex-shrink: 0;
+}
+
+.tv-onboarding__swatch-meta {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.tv-onboarding__swatch-meta strong {
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.tv-onboarding__swatch-hex {
+	font-size: 11px;
+	color: #50575e;
+	background: transparent;
+	padding: 0;
+}
+
+/* Mini preview */
+.tv-onboarding__preview {
+	border: 1px solid #c3c4c7;
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.tv-onboarding__preview-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 12px 16px;
+	background: #112D40;
+	color: #fff;
+}
+
+.tv-onboarding__preview-brand {
+	font-weight: 600;
+	font-size: 14px;
+}
+
+.tv-onboarding__preview-cta {
+	font-weight: 600;
+	font-size: 12px;
+	padding: 4px 12px;
+	border-radius: 4px;
+	background: #FFBC21;
+	color: #112D40;
+}
+
+.tv-onboarding__preview-body {
+	padding: 24px;
+}
+
+.tv-onboarding__preview-h {
+	margin: 0 0 8px;
+	font-size: 22px;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.tv-onboarding__preview-p {
+	margin: 0 0 16px;
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+.tv-onboarding__preview-card {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	padding: 12px;
+	border: 1px solid #EAE7D7;
+	border-radius: 6px;
+	background: #fff;
+}
+
+.tv-onboarding__preview-card-thumb {
+	width: 96px;
+	height: 56px;
+	background: #EAE7D7;
+	border-radius: 4px;
+	flex-shrink: 0;
+}
+
+.tv-onboarding__preview-card strong {
+	display: block;
+	font-size: 13px;
+	margin-bottom: 2px;
+}
+
+.tv-onboarding__preview-card small {
+	color: inherit;
+	opacity: 0.7;
+	font-size: 12px;
+}
+
+/* Bulk import textarea */
+.tv-onboarding textarea {
+	font-family: ui-monospace, "SF Mono", Menlo, monospace;
+	font-size: 12px;
+}
+
+/* Submit row */
+.tv-onboarding .submit {
+	margin: 0;
+	padding: 0;
+}
+
+.tv-onboarding .button-hero {
+	font-size: 14px !important;
+	height: 44px !important;
+	line-height: 42px !important;
+	padding: 0 28px !important;
+}
