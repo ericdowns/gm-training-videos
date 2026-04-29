@@ -4,6 +4,15 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.4.4] — 2026-04-28
+
+### Added
+- **Native WordPress "Update available" flow via GitHub Releases (card #11).** Repo flipped to public. Vendored `YahnisElsts/plugin-update-checker` v5.6 (MIT). New `.github/workflows/release.yml` builds a clean zip on every `v*.*.*` tag (excludes `.git/`, `tests/`, dev-only PHP helpers) and attaches it to the GitHub Release. Each install polls the repo, sees the new tag, surfaces "Update available" in `wp-admin/plugins.php` exactly like a wp.org plugin. No PAT required per install.
+- "Check for updates" link added to the plugin's row in the Plugins list (provided by plugin-update-checker).
+
+### Changed
+- Deploy workflow: tag `vX.Y.Z` → CI builds the zip → click Update in wp-admin. `cp -r` deploys are no longer required for routine updates.
+
 ## [1.4.3] — 2026-04-28
 
 ### Removed

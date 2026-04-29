@@ -1,0 +1,71 @@
+name: Build & Release Plugin Zip
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Verify plugin header version matches tag
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          HEADER_VERSION=$(grep -E "^\s*\*\s*Version:" training-videos.php | head -1 | awk -F: '{print $2}' | tr -d ' \r')
+          echo "Tag:    v${TAG_VERSION}"
+          echo "Header: v${HEADER_VERSION}"
+          if [ "$TAG_VERSION" != "$HEADER_VERSION" ]; then
+            echo "::error::Plugin header version (${HEADER_VERSION}) does not match tag (${TAG_VERSION})"
+            exit 1
+          fi
+
+      - name: Build clean release zip
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          STAGE="/tmp/training-videos"
+          rm -rf "$STAGE"
+          mkdir -p "$STAGE"
+
+          # Copy runtime files; exclude dev / test / sample / repo files.
+          rsync -a --exclude-from=- ./ "$STAGE/" <<'EOF'
+          .git/
+          .github/
+          .gitignore
+          .gitattributes
+          tests/
+          node_modules/
+          *.md
+          create-sample-videos.php
+          create-videos-now.php
+          check-video-url.php
+          check-videos.php
+          flush-rewrite.php
+          test-create.php
+          test-query.php
+          update-videos.php
+          /tmp/
+          EOF
+
+          # CHANGELOG.md and README.md are useful inside the zip — re-add them.
+          cp CHANGELOG.md README.md "$STAGE/" 2>/dev/null || true
+
+          ZIP_NAME="training-videos.zip"
+          (cd /tmp && zip -qr "$ZIP_NAME" training-videos)
+          mv "/tmp/$ZIP_NAME" .
+          ls -lh "$ZIP_NAME"
+          echo "ZIP_NAME=$ZIP_NAME" >> "$GITHUB_ENV"
+
+      - name: Create / update GitHub Release with the zip attached
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ZIP_NAME }}
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true

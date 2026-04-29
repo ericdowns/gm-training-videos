@@ -3,7 +3,7 @@
  * Plugin Name: Training Videos
  * Plugin URI: https://grainandmortar.com
  * Description: A custom plugin made by Grain & Mortar that displays training videos.
- * Version: 1.4.3
+ * Version: 1.4.4
  * Author: Grain & Mortar | Technical Director - Eric Downs (eric@grainandmortar.com)
  * Author URI: https://grainandmortar.com
  * License: Grain & Mortar 
@@ -28,6 +28,27 @@ require_once plugin_dir_path( __FILE__ ) . 'inc/font-detect.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/bulk-import.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/onboarding.php';
 
+// ============================================================================
+// AUTO-UPDATES via GitHub Releases (card #11)
+// ============================================================================
+// Hooks the bundled plugin-update-checker library into WordPress's native
+// "Update available" flow. Polls the public GitHub repo for new releases and
+// surfaces them on every install just like wp.org plugins. The repo is
+// public — no PAT required per install.
+$tv_puc_loader = plugin_dir_path( __FILE__ ) . 'vendor/plugin-update-checker/plugin-update-checker.php';
+if ( file_exists( $tv_puc_loader ) ) {
+    require_once $tv_puc_loader;
+    $tv_update_checker = YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+        'https://github.com/ericdowns/gm-training-videos/',
+        __FILE__,
+        'training-videos'
+    );
+    // Use GitHub Releases (the .zip attached by .github/workflows/release.yml)
+    // as the update source instead of the default branch tarball — gives us
+    // a clean shippable bundle without dev files (.git, tests/, etc.).
+    $tv_update_checker->getVcsApi()->enableReleaseAssets();
+}
+
 // Onboarding flag — set on activation, redirected to the wizard on first
 // admin pageload. The actual logic lives in inc/onboarding.php; this hook
 // must be in the main plugin file so __FILE__ resolves correctly.
@@ -42,7 +63,7 @@ function training_videos_enqueue_styles() {
     if ( ! is_singular( 'training_videos' ) && ! is_post_type_archive( 'training_videos' ) ) {
         return;
     }
-    $version = '1.4.3';
+    $version = '1.4.4';
     wp_enqueue_style(
         'training-videos-fontawesome',
         'https://use.fontawesome.com/releases/v6.5.1/css/all.css',
@@ -222,7 +243,7 @@ function training_videos_enqueue_settings_assets( $hook ) {
     if ( false === strpos( (string) $hook, 'training-videos-settings' ) ) {
         return;
     }
-    $version = '1.4.3';
+    $version = '1.4.4';
     wp_enqueue_style(
         'training-videos-onboarding',
         plugins_url( 'assets/admin-onboarding.css', __FILE__ ),
@@ -551,7 +572,7 @@ function training_videos_settings_page_html() {
 // ============================================================================
 
 // Add custom meta box for Loom video URL.
-// Priority order across all training_videos meta boxes (1.4.3 — critique fix):
+// Priority order across all training_videos meta boxes (1.4.4 — critique fix):
 //   high    → Loom Video URL  (the source-of-truth field, fill it first)
 //   core    → Loom video info (preview + metadata, populated from URL)
 //   default → Description     (auto-fills from Loom on save)
@@ -697,7 +718,7 @@ function training_videos_add_loom_data_meta_box() {
         'Loom video info',
         'training_videos_loom_data_meta_box_html',
         'training_videos',
-        'normal', // Main column — was 'side', moved 1.4.3.
+        'normal', // Main column — was 'side', moved 1.4.4.
         'core'    // Renders below URL (high) and above Description (default).
     );
 }
@@ -927,7 +948,7 @@ add_action( 'admin_post_training_videos_refresh_thumbnail', 'training_videos_han
 
 /**
  * admin-post handler — combined re-sync (description + thumbnail).
- * 1.4.3 critique fix: collapses the two-button refresh UX into one
+ * 1.4.4 critique fix: collapses the two-button refresh UX into one
  * "Re-sync from Loom" action. Internally fires both handlers and
  * reports a combined status message.
  */
