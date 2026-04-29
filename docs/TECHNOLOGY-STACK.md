@@ -2,6 +2,55 @@
 
 _Last verified: 2026-04-28 by Eric / Claude_
 
+## 🤖 Agent Quick Brief
+
+> **Read this; skip the rest unless you need a specific detail.**
+
+**What this is.** Standalone WordPress plugin that delivers a branded training-video library backed by Loom. Auto-updates via GitHub Releases. Each install reports daily to the G&M Maintenance Portal.
+
+**Don't trip on these (footguns):**
+- **Older client sites still on ≤v1.3.x do NOT auto-update** — they need a one-time manual `cp -r` to ≥v1.4.4 first to pick up plugin-update-checker. Track which sites need this in `docs/SITES.md`.
+- **Loom oEmbed thumbnails 403 for workspace-private videos when using the plain CDN URL pattern** (`cdn.loom.com/sessions/thumbnails/{id}-with-play.gif`). Always go through oEmbed (`loom.com/v1/oembed?url=...`).
+- **`'custom-fields'` is intentionally NOT in CPT supports.** v1.4.1 removed it because the native panel was leaking internal `_loom_*` post meta as raw editable rows.
+- **Auto-fill of `_video_description` from Loom only fires when the field is empty** — manual edits are preserved on subsequent saves. Clear the field to re-fill.
+- **WP-CLI on Local-by-Flywheel sites needs the socket override** (`--require=/tmp/wp-db-override.php`). See the `loom` skill runbook.
+
+**Critical paths (where things live):**
+- **Plugin entry point:** `training-videos.php` (header version, plugin-update-checker bootstrap, all hooks)
+- **License + heartbeat:** `inc/license.php`, `inc/heartbeat.php`
+- **Loom integration:** `inc/loom-helpers.php`
+- **Brand-fields registry:** `inc/brand.php`
+- **Templates:** `templates/` (self-contained — no theme dependency)
+- **Plugin styles:** `css/training-videos.css` (token-driven via `:root { --tv-color-* }`)
+- **Vendored update-checker lib:** `vendor/plugin-update-checker/`
+- **Release workflow:** `.github/workflows/release.yml`
+- **Server URL config:** `define( 'TRAINING_VIDEOS_LICENSE_SERVER', '...' )` in `wp-config.php` (defaults to `https://portal.grainandmortar.com/api/training-videos`)
+
+**Get running locally in one command:**
+```bash
+ln -s ~/Projects/gm-training-videos \
+  ~/Local\ Sites/gm-training-videos-dev/app/public/wp-content/plugins/training-videos
+```
+Time to running: ~2 minutes (with Local-by-Flywheel installed).
+
+**Companion repos / live URLs:**
+- **Plugin repo (this):** https://github.com/ericdowns/gm-training-videos
+- **Plugin releases:** https://github.com/ericdowns/gm-training-videos/releases
+- **Registry server (companion repo):** https://github.com/ericdowns/gm-maintenance — admin tab at https://maintenance.grainandmortar.com/admin/training-videos
+- **Project hub:** `~/.claude-royal/project-notes/training-videos/README.md`
+
+**If something is wrong, start here:**
+- Site stops phoning home → [`runbooks/DEBUG-HEARTBEAT.md`](runbooks/DEBUG-HEARTBEAT.md)
+- Onboarding a new install → [`runbooks/ONBOARD-CLIENT.md`](runbooks/ONBOARD-CLIENT.md)
+- Shipping a new version → [`runbooks/RELEASE-VERSION.md`](runbooks/RELEASE-VERSION.md)
+- Revoking a license → [`runbooks/REVOKE-LICENSE.md`](runbooks/REVOKE-LICENSE.md)
+
+---
+
+## Full reference
+
+The 20 sections below exist for when you need a specific answer (e.g., "which version of plugin-update-checker is vendored", "what option keys does the license module write"). Don't read top-to-bottom — search for the section you need.
+
 ## 1. Identity
 
 | | |
