@@ -150,7 +150,6 @@ training-videos/
 ├── training-videos.php           # Main plugin file — registers CPT, Settings + Onboarding submenus, activation hook, defines TRAINING_VIDEOS_PLUGIN_URL
 ├── CLAUDE.md                     # This documentation (for AI)
 ├── README.md                     # Installation/usage docs (for humans)
-├── loom-helper.php               # Standalone URL conversion tool
 ├── inc/
 │   ├── brand.php                 # Brand-fields registry + render_brand_styles() inline overlay
 │   ├── brand-derive.php          # 2-color → 7-surface palette derivation (HSL math + WCAG AA guard)

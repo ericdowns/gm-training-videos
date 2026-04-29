@@ -4,6 +4,15 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.4.3] — 2026-04-28
+
+### Removed
+- **Standalone `loom-helper.php`** — 13KB obsolete URL-conversion tool with a hardcoded `steven-ginn-architects.local` reference and the deprecated CDN thumbnail pattern. The save handler in `training_video_meta_box_html` already auto-converts share→embed, so the helper had no remaining function. Reported as broken by Eric. Also stripped from README.md + CLAUDE.md.
+
+### Changed
+- **Loom Video URL meta box drastically simplified.** Stripped the purple `#7c3aed`-accented helper box with two faux "Option 1 / Option 2" choices that both ended at the same auto-converted embed URL, the broken "Open Loom Helper Tool" link, and the giant 🎥 heading. Reduced to a single URL input + one-line micro-help + a "Open your Loom library ↗" link. Same field, ~80% less visual chrome.
+- Input changed from `type="text"` to `type="url"` with a monospace font so admins can spot typos in the URL pattern.
+
 ## [1.4.2] — 2026-04-28
 
 ### Changed (edit screen UX, post-critique)

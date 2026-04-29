@@ -76,10 +76,6 @@ Thumbnails are automatically generated from Loom URLs:
 https://cdn.loom.com/sessions/thumbnails/[VIDEO_ID]-with-play.gif
 ```
 
-## Helper Tools
-
-- `loom-helper.php` - Standalone Loom URL conversion tool (access at `/wp-content/plugins/training-videos/loom-helper.php`)
-
 ## Requirements
 
 - WordPress 5.0+

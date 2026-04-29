@@ -3,7 +3,7 @@
  * Plugin Name: Training Videos
  * Plugin URI: https://grainandmortar.com
  * Description: A custom plugin made by Grain & Mortar that displays training videos.
- * Version: 1.4.2
+ * Version: 1.4.3
  * Author: Grain & Mortar | Technical Director - Eric Downs (eric@grainandmortar.com)
  * Author URI: https://grainandmortar.com
  * License: Grain & Mortar 
@@ -42,7 +42,7 @@ function training_videos_enqueue_styles() {
     if ( ! is_singular( 'training_videos' ) && ! is_post_type_archive( 'training_videos' ) ) {
         return;
     }
-    $version = '1.4.2';
+    $version = '1.4.3';
     wp_enqueue_style(
         'training-videos-fontawesome',
         'https://use.fontawesome.com/releases/v6.5.1/css/all.css',
@@ -222,7 +222,7 @@ function training_videos_enqueue_settings_assets( $hook ) {
     if ( false === strpos( (string) $hook, 'training-videos-settings' ) ) {
         return;
     }
-    $version = '1.4.2';
+    $version = '1.4.3';
     wp_enqueue_style(
         'training-videos-onboarding',
         plugins_url( 'assets/admin-onboarding.css', __FILE__ ),
@@ -551,7 +551,7 @@ function training_videos_settings_page_html() {
 // ============================================================================
 
 // Add custom meta box for Loom video URL.
-// Priority order across all training_videos meta boxes (1.4.2 — critique fix):
+// Priority order across all training_videos meta boxes (1.4.3 — critique fix):
 //   high    → Loom Video URL  (the source-of-truth field, fill it first)
 //   core    → Loom video info (preview + metadata, populated from URL)
 //   default → Description     (auto-fills from Loom on save)
@@ -576,38 +576,20 @@ function training_video_meta_box_html( $post ) {
     $loom_video_url = get_post_meta( $post->ID, '_loom_video_url', true );
     wp_nonce_field( 'save_training_video_meta', 'training_video_meta_nonce' );
     ?>
-    <div style="padding: 10px; background: #f0f0f1; border-left: 4px solid #7c3aed; margin-bottom: 15px;">
-        <p style="margin: 0 0 10px 0; font-weight: bold; color: #7c3aed;">
-            🎥 Loom Video URL Helper
-        </p>
-        <p style="margin: 0 0 5px 0; font-size: 13px;">
-            <strong>Option 1:</strong> Paste your Loom share URL (we'll auto-convert it)<br>
-            Example: <code style="background: white; padding: 2px 4px;">https://www.loom.com/share/abc123...</code>
-        </p>
-        <p style="margin: 0 0 5px 0; font-size: 13px;">
-            <strong>Option 2:</strong> Use the embed URL directly<br>
-            Example: <code style="background: white; padding: 2px 4px;">https://www.loom.com/embed/abc123...</code>
-        </p>
-        <p style="margin: 10px 0 0 0; font-size: 13px;">
-            <a href="<?php echo plugins_url('loom-helper.php', __FILE__); ?>" target="_blank" style="color: #7c3aed; text-decoration: none; font-weight: bold;">
-                → Open Loom Helper Tool
-            </a> | 
-            <a href="https://www.loom.com/my-videos" target="_blank" style="color: #7c3aed; text-decoration: none;">
-                View Your Loom Videos
-            </a>
-        </p>
-    </div>
-    <p>
-       <label for="loom_video_url"><strong><?php _e( 'Video URL:', 'training-videos' ); ?></strong></label>
-       <br>
-       <input type="text" 
-              id="loom_video_url" 
-              name="loom_video_url" 
-              value="<?php echo esc_attr( $loom_video_url ); ?>" 
-              style="width: 100%; max-width: 600px; padding: 8px;"
-              placeholder="Paste Loom share or embed URL here...">
-   </p>
-   <?php
+    <p style="margin: 0;">
+        <label for="loom_video_url" class="screen-reader-text"><?php _e( 'Loom video URL', 'training-videos' ); ?></label>
+        <input type="url"
+               id="loom_video_url"
+               name="loom_video_url"
+               value="<?php echo esc_attr( $loom_video_url ); ?>"
+               style="width: 100%; padding: 10px; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 13px;"
+               placeholder="https://www.loom.com/share/...">
+    </p>
+    <p style="margin: 8px 0 0; font-size: 12px; color: #50575e;">
+        Paste a Loom <strong>share</strong> or <strong>embed</strong> URL — we save the embed form on save.
+        <a href="https://www.loom.com/my-videos" target="_blank" rel="noopener" style="margin-left: 6px;">Open your Loom library &nearr;</a>
+    </p>
+    <?php
 }
 
 
@@ -715,7 +697,7 @@ function training_videos_add_loom_data_meta_box() {
         'Loom video info',
         'training_videos_loom_data_meta_box_html',
         'training_videos',
-        'normal', // Main column — was 'side', moved 1.4.2.
+        'normal', // Main column — was 'side', moved 1.4.3.
         'core'    // Renders below URL (high) and above Description (default).
     );
 }
@@ -945,7 +927,7 @@ add_action( 'admin_post_training_videos_refresh_thumbnail', 'training_videos_han
 
 /**
  * admin-post handler — combined re-sync (description + thumbnail).
- * 1.4.2 critique fix: collapses the two-button refresh UX into one
+ * 1.4.3 critique fix: collapses the two-button refresh UX into one
  * "Re-sync from Loom" action. Internally fires both handlers and
  * reports a combined status message.
  */
