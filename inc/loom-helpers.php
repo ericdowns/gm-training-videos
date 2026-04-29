@@ -73,21 +73,30 @@ if ( ! function_exists( 'training_videos_get_loom_thumbnail_url' ) ) {
 	/**
 	 * Get a thumbnail URL for a Loom video.
 	 *
-	 * Resolution order:
-	 *   1. Local Media Library attachment (post meta `_loom_thumbnail_url`),
-	 *      populated by the save-triggered cron in card #3.
-	 *   2. Remote oEmbed thumbnail (cached 7 days via transient).
+	 * Resolution order (card #28):
+	 *   1. WordPress Featured Image — admin's manual override path.
+	 *   2. Local Media Library cache (`_loom_thumbnail_url`) — sideloaded
+	 *      from Loom on save (card #3).
+	 *   3. Remote oEmbed thumbnail (cached 7 days via transient).
 	 *
 	 * Loom's plain-ID thumbnails (e.g. {id}-with-play.gif) return HTTP 403 for
 	 * workspace-private videos. oEmbed returns a hash-suffixed URL that's
 	 * publicly accessible regardless of video privacy.
 	 *
 	 * @param string $video_url Loom share or embed URL.
-	 * @param int    $post_id   Optional post ID — used to read the local cache.
+	 * @param int    $post_id   Optional post ID — used to read featured image + local cache.
 	 * @return string|false Thumbnail URL on success, false otherwise.
 	 */
 	function training_videos_get_loom_thumbnail_url( $video_url, $post_id = 0 ) {
-		// Local Media Library cache wins if it exists (card #3).
+		// Featured Image wins (card #28 — admin's manual override).
+		if ( $post_id && function_exists( 'has_post_thumbnail' ) && has_post_thumbnail( (int) $post_id ) ) {
+			$featured = get_the_post_thumbnail_url( (int) $post_id, 'large' );
+			if ( $featured ) {
+				return $featured;
+			}
+		}
+
+		// Local Media Library cache from Loom sideload (card #3).
 		if ( $post_id ) {
 			$local = get_post_meta( (int) $post_id, '_loom_thumbnail_url', true );
 			if ( $local ) {

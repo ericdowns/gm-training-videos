@@ -3,7 +3,7 @@
  * Plugin Name: Training Videos
  * Plugin URI: https://grainandmortar.com
  * Description: A custom plugin made by Grain & Mortar that displays training videos.
- * Version: 1.4.0
+ * Version: 1.4.1
  * Author: Grain & Mortar | Technical Director - Eric Downs (eric@grainandmortar.com)
  * Author URI: https://grainandmortar.com
  * License: Grain & Mortar 
@@ -42,7 +42,7 @@ function training_videos_enqueue_styles() {
     if ( ! is_singular( 'training_videos' ) && ! is_post_type_archive( 'training_videos' ) ) {
         return;
     }
-    $version = '1.4.0';
+    $version = '1.4.1';
     wp_enqueue_style(
         'training-videos-fontawesome',
         'https://use.fontawesome.com/releases/v6.5.1/css/all.css',
@@ -89,7 +89,11 @@ function create_training_videos_post_type() {
         'has_archive' => true,
         'menu_icon' => 'dashicons-video-alt',
         'rewrite' => array('slug' => 'training-videos'), // Set custom slug for training videos
-        'supports' => array( 'title', 'custom-fields' ),
+        // 'thumbnail' is the override path — set a Featured Image to replace
+        // the auto-fetched Loom thumbnail. We DO NOT include 'custom-fields'
+        // because that exposes internal underscore-prefixed meta as raw
+        // editable rows in the UI (confusing, leaks implementation detail).
+        'supports' => array( 'title', 'thumbnail' ),
         'publicly_queryable' => true,
         'exclude_from_search' => true, // Add this line to exclude from search
         'noindex' => true, // Add this line to add "noindex" meta tag
@@ -218,7 +222,7 @@ function training_videos_enqueue_settings_assets( $hook ) {
     if ( false === strpos( (string) $hook, 'training-videos-settings' ) ) {
         return;
     }
-    $version = '1.4.0';
+    $version = '1.4.1';
     wp_enqueue_style(
         'training-videos-onboarding',
         plugins_url( 'assets/admin-onboarding.css', __FILE__ ),
@@ -598,21 +602,10 @@ function training_video_meta_box_html( $post ) {
               style="width: 100%; max-width: 600px; padding: 8px;"
               placeholder="Paste Loom share or embed URL here...">
    </p>
-   <?php if ($loom_video_url && strpos($loom_video_url, 'loom.com/embed/') !== false): ?>
-       <?php 
-       // Extract video ID for thumbnail
-       preg_match('/embed\/([a-zA-Z0-9]+)/', $loom_video_url, $matches);
-       $video_id = isset($matches[1]) ? $matches[1] : '';
-       if ($video_id):
-       ?>
-       <div style="margin-top: 15px;">
-           <p style="font-weight: bold; margin-bottom: 10px;">Preview Thumbnail:</p>
-           <img src="https://cdn.loom.com/sessions/thumbnails/<?php echo $video_id; ?>-with-play.gif" 
-                style="max-width: 300px; border: 1px solid #ddd; border-radius: 4px;"
-                onerror="this.src='https://cdn.loom.com/sessions/thumbnails/<?php echo $video_id; ?>-00001.jpg'">
-       </div>
-       <?php endif; ?>
-   <?php endif; ?>
+   <p style="margin-top: 12px; font-size: 12px; color: #666;">
+       <strong>Thumbnail:</strong> auto-fetched from Loom on save (live status in the <em>Loom Data</em> sidebar).
+       To override, set a <strong>Featured Image</strong> — it'll replace the auto-fetched thumbnail on the archive grid + single-page sidebar.
+   </p>
    <?php
 }
 
@@ -683,6 +676,9 @@ function training_video_description_meta_box_html( $post ) {
     $video_description = get_post_meta( $post->ID, '_video_description', true );
     wp_nonce_field( 'save_training_video_description_meta', 'training_video_description_meta_nonce' );
     ?>
+    <p style="margin: 0 0 8px 0; padding: 8px 10px; background: #f6f7f7; border-left: 3px solid #2271b1; font-size: 12px; color: #1d2327;">
+        Auto-fills from the producer-authored description in Loom on save (when this field is empty). Edit any time to override — your edit will be preserved on subsequent saves.
+    </p>
     <p>
         <label for="video_description"><?php _e( 'Enter a 140 character description for this training video:', 'training-videos' ); ?></label>
         <br>

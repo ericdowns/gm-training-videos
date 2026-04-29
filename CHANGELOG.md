@@ -4,6 +4,16 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.4.1] — 2026-04-28
+
+### Fixed
+- **Hide raw post meta from the edit screen.** `register_post_type` was declaring `'supports' => ['title', 'custom-fields']`, which exposed every internal underscore-prefixed meta key (`_loom_video_url`, `_loom_thumbnail_url`, `_loom_thumbnail_attachment_id`, `_loom_thumbnail_for_url`, `_video_description`) as raw editable rows in the native Custom Fields panel. Confusing for clients, leaks implementation detail. Dropped `custom-fields`. Card #28.
+- **Stripped the broken inline "Preview Thumbnail" preview** from the Loom Video URL meta box. It used the `cdn.loom.com/sessions/thumbnails/{id}-with-play.gif` URL pattern that v1.1.1 already flagged as 403-returning for workspace-private videos, and duplicated the live status the Loom Data sidebar shows. Replaced with a 1-line note explaining the auto-fetch + Featured Image override path.
+
+### Changed
+- **Featured Image is now the thumbnail override path.** Added `'thumbnail'` to CPT supports. `training_videos_get_loom_thumbnail_url()` now resolves in this order: Featured Image → sideloaded local cache → oEmbed live. Set a Featured Image on a training video to override the auto-fetched Loom thumbnail; clear it to revert.
+- Description meta box now shows a help banner explaining auto-fill from Loom on save (when empty), and that manual edits are preserved.
+
 ## [1.4.0] — 2026-04-28
 
 ### Added
