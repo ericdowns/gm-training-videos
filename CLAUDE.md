@@ -5,7 +5,7 @@ This document provides guidance to Claude Code when working with the Training Vi
 ## Plugin Overview
 
 **Name:** Training Videos
-**Version:** 1.4.0
+**Version:** 1.4.5
 **Author:** Eric Downs - Technical Director at Grain & Mortar
 **Purpose:** Provide clients with a professional training video library portal using Loom videos
 
@@ -15,6 +15,31 @@ This is a standalone WordPress plugin (not a theme include) that creates a compl
 - Documentation resource card (Google Doc link)
 - Admin bar quick access
 - Self-contained templates (doesn't rely on theme)
+- Onboarding wizard (2-color brand auto-derivation + font auto-detection + Loom bulk import)
+- License key + daily heartbeat to G&M Maintenance Portal
+- Native WP "Update available" flow via GitHub Releases
+
+## Read these first
+
+| Doc | Why |
+|-----|-----|
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | **Canonical** "how the whole system works" — plugin ↔ portal flow, wire format, caching, failure surfaces |
+| [`docs/TECHNOLOGY-STACK.md`](docs/TECHNOLOGY-STACK.md) | What this project runs on — language, framework, hosting, integrations, secrets |
+| [`docs/runbooks/`](docs/runbooks/) | Operational procedures — onboard, revoke, release, debug |
+| [`CHANGELOG.md`](CHANGELOG.md) | Version history |
+
+## Companion repo + cross-references
+
+The plugin's registry server (heartbeat endpoint + license validation + admin dashboard) lives in the **G&M Maintenance Portal** repo:
+
+- Portal repo: https://github.com/ericdowns/gm-maintenance — `~/Projects/gm-maintenance/`
+- Portal CLAUDE.md: `~/Projects/gm-maintenance/CLAUDE.md`
+- Portal integration doc: `~/Projects/gm-maintenance/docs/TRAINING-VIDEOS.md`
+- Live admin dashboard: https://maintenance.grainandmortar.com/admin/training-videos
+- Heartbeat endpoint: `POST https://maintenance.grainandmortar.com/api/training-videos/heartbeat`
+
+**Cross-repo project hub** (status timeline + open cards across both repos):
+`~/.claude-royal/project-notes/training-videos/README.md`
 
 ---
 
