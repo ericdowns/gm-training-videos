@@ -4,6 +4,14 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.4.7] — 2026-04-29
+
+### Fixed
+- **Settings page card spacing.** The wizard wraps its 3 cards in `.tv-onboarding__form` which provides `gap: 24px` via flex layout; the Settings page form had no class, so its 5 cards stacked with no gap and the borders touched (visually most obvious between Fonts and Bulk import). Added `class="tv-onboarding__form"` to the Settings form so it inherits the same rhythm. CSS-only fix — same selector that already exists, just applied to the right element.
+
+### Docs
+- **Master `CLAUDE.md` — explicit "deploy after every change" rule.** Replaces the loose "ask about deploy" wording with a hard expectation: after any code change in the master repo, the agent must (1) bump version, (2) commit + push, (3) ask the user whether to deploy to production sites listed in `docs/SITES.md`. Sites on ≥1.4.4 can pull via the WP "Update available" banner once a `v*.*.*` tag is cut and the GitHub Release workflow finishes; older sites need `cp -r`.
+
 ## [1.4.6] — 2026-04-29
 
 ### Added

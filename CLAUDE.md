@@ -359,6 +359,24 @@ v1.1.1 (workspace-private Loom thumbnail fix), v1.1.0 (documentation resource + 
 
 **IMPORTANT:** Always confirm with the user before deploying to a site. Never copy files without explicit approval.
 
+### MANDATORY: After every plugin code change, ask about production deploy
+
+Any code change to this plugin — bug fix, new feature, CSS tweak, doc-that-ships-with-the-plugin, even a copy edit — follows this exact sequence:
+
+1. **Make the change** in the master repo at `/Users/edowns/Projects/gm-training-videos`
+2. **Bump version** in `training-videos.php` (PATCH for fixes/docs, MINOR for features, MAJOR for breaking)
+3. **Update `CHANGELOG.md`** with a new dated section
+4. **Commit and push** to `origin/main`
+5. **Verify locally** at `gm-training-videos-dev.local` (the symlinked dev site) before declaring the work done — the user's CLAUDE.md rule about browser verification applies
+6. **Ask the user** — via `AskUserQuestion`, never inline prose — whether to deploy to production. Two paths:
+   - **Tag a release** (`v1.4.7` style) → fires `.github/workflows/release.yml` → builds the clean zip → every site running ≥1.4.4 sees "Update available" in `wp-admin/plugins.php` on its next update check. **Default path for any site already on ≥1.4.4.**
+   - **`rsync` directly** to a specific site's `wp-content/plugins/training-videos/` (used in this conversation when an agent is already inside a client install). **Required for any site still on <1.4.4** — those don't have the plugin-update-checker yet.
+7. **Update `docs/SITES.md`** if a deployment path is taken — bump the version column for that site.
+
+**No silent deploys, no skipping the ask.** The user wants to choose per-change whether it ships immediately or waits. Even if an earlier change in the same conversation was deployed, ask again — scope is per-change, not per-session.
+
+**The cycle this enforces:** build on the fly inside whatever client install you're sitting in → push the change up to master → cut a release (or rsync) → all production sites converge on the latest. The "central location" (master + GitHub Release) is the single source of truth; client installs are downstream of it.
+
 ### When User Says "Add training videos plugin"
 
 1. **Confirm first:** "I'll copy the Training Videos plugin from the master repo to this site's plugins folder. Proceed?"
@@ -384,11 +402,7 @@ v1.1.1 (workspace-private Loom thumbnail fix), v1.1.0 (documentation resource + 
 
 ### When User Says "Fix/change training videos"
 
-1. **Work in master repo:** `/Users/edowns/Projects/gm-training-videos`
-2. **Make changes**
-3. **Bump version** in `training-videos.php` header
-4. **Commit and push** to GitHub
-5. **Ask user:** "Changes committed to master repo. Do you want me to deploy to any sites?"
+Follow the **MANDATORY: After every plugin code change** sequence above (master → bump → CHANGELOG → push → verify → **ask about production**). The "ask about production" step is non-negotiable; do not skip it even when the change feels trivial.
 
 ### Quick Reference
 
@@ -396,8 +410,8 @@ v1.1.1 (workspace-private Loom thumbnail fix), v1.1.0 (documentation resource + 
 |---------|--------|
 | "Add training videos plugin" | **Confirm** → Copy from master repo to site |
 | "Update training videos" | **Confirm** → Replace site copy with master repo |
-| "Add feature to training videos" | Work in master repo, bump version, **ask about deploy** |
-| "Fix bug in training videos" | Work in master repo, bump version, **ask about deploy** |
+| "Add feature to training videos" | Master → bump → CHANGELOG → push → verify → **AskUserQuestion** about production deploy (tag vs rsync) |
+| "Fix bug in training videos" | Master → bump → CHANGELOG → push → verify → **AskUserQuestion** about production deploy (tag vs rsync) |
 | "Configure training videos" | Edit settings in WP admin, not code |
 
 ### Always Remember

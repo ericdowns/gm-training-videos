@@ -2,8 +2,8 @@
 
 > **Interim doc.** This file is hand-maintained from filesystem scans. Once the central registration/dashboard cards land ([#A](https://github.com/ericdowns/gm-training-videos/issues?q=is%3Aopen+is%3Aissue+label%3Acard) and onward), the source of truth moves to the live registry and this file becomes a periodic snapshot.
 
-**Last scan:** 2026-04-28
-**Master repo version:** v1.3.5
+**Last scan:** 2026-04-29
+**Master repo version:** v1.4.7
 
 ---
 
@@ -51,7 +51,7 @@
 | 16 | solanocaliforniaforevercom | Local | 1.0.0 | TBD | TBD | needs update |
 | 17 | staging-solanocaliforniaforever | Local | 1.0.0 | TBD | TBD | needs update; staging mirror |
 | 18 | steven-ginn-architects | Local | 1.0.0 | TBD | TBD | needs update |
-| 19 | within-reach | Local | 1.1.0 | TBD | TBD | needs v1.1.1 thumbnail fix |
+| 19 | within-reach | Local | 1.4.7 | https://withinreach.flywheelsites.com (pre-launch) | 2026-04-29 | upgraded from 1.1.0 in this session; onboarding wizard run with WR brand (navy + orange, GT Standard / Neuton) |
 | 20 | xomox | Local | 1.1.0 | TBD | TBD | **rebranded fork** — diverged templates (graydark/gold/pagebg). Reconcile per [card #4](https://github.com/ericdowns/gm-training-videos/issues/4) |
 
 **Production URLs and last-deployed dates** are TBD — backfill on demand. Cross-reference `~/.claude/skills/sites-dashboard/sites.json` when filling in any row.
