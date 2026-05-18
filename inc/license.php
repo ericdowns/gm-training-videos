@@ -31,7 +31,21 @@ const TRAINING_VIDEOS_LICENSE_STATUS_OPT   = 'training_videos_license_status';
 const TRAINING_VIDEOS_LICENSE_CHECKED_OPT  = 'training_videos_license_last_checked';
 const TRAINING_VIDEOS_LICENSE_LASTGOOD_OPT = 'training_videos_license_last_good';
 const TRAINING_VIDEOS_LICENSE_TRANSIENT    = 'training_videos_license_status_cache';
+const TRAINING_VIDEOS_LICENSE_REQUIRED_OPT = 'training_videos_license_required';
 const TRAINING_VIDEOS_LICENSE_GRACE_DAYS   = 7;
+
+/**
+ * Is a license key required on this install? Defaults to true so existing
+ * sites keep their current behavior. Site admins can flip this off in
+ * Settings to silence the unlicensed/invalid nag — useful for internal
+ * G&M installs, demos, or sites under a maintenance contract that doesn't
+ * include a key. The daily heartbeat still fires regardless; this only
+ * governs the admin notice surface.
+ */
+function training_videos_license_required() {
+	$opt = get_option( TRAINING_VIDEOS_LICENSE_REQUIRED_OPT, '1' );
+	return '1' === (string) $opt;
+}
 
 /**
  * @return string Empty if not set.
@@ -163,6 +177,9 @@ function training_videos_plugin_version() {
  */
 function training_videos_license_admin_notice() {
 	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+	if ( ! training_videos_license_required() ) {
 		return;
 	}
 	$status = training_videos_get_license_status();

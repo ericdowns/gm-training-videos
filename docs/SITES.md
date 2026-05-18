@@ -51,7 +51,7 @@
 | 16 | solanocaliforniaforevercom | Local | 1.0.0 | TBD | TBD | needs update |
 | 17 | staging-solanocaliforniaforever | Local | 1.0.0 | TBD | TBD | needs update; staging mirror |
 | 18 | steven-ginn-architects | Local | 1.0.0 | TBD | TBD | needs update |
-| 19 | within-reach | Local | 1.4.7 | https://withinreach.flywheelsites.com (pre-launch) | 2026-04-29 | upgraded from 1.1.0 in this session; onboarding wizard run with WR brand (navy + orange, GT Standard / Neuton) |
+| 19 | within-reach | Local + Flywheel | 1.4.8 | https://withinreach.flywheelsites.com (pre-launch) | 2026-05-18 | bumped to 1.4.8 to pick up license-required toggle (license set to optional on this install) |
 | 20 | xomox | Local | 1.1.0 | TBD | TBD | **rebranded fork** — diverged templates (graydark/gold/pagebg). Reconcile per [card #4](https://github.com/ericdowns/gm-training-videos/issues/4) |
 
 **Production URLs and last-deployed dates** are TBD — backfill on demand. Cross-reference `~/.claude/skills/sites-dashboard/sites.json` when filling in any row.

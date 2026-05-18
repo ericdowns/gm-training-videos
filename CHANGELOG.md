@@ -4,6 +4,11 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.4.8] — 2026-05-18
+
+### Added
+- **License-required toggle.** New Settings → License checkbox: "Require a license key on this install." On by default so existing sites keep their current behavior. When unchecked, the unlicensed/invalid admin nag is suppressed — useful for internal G&M demos, sites under a maintenance contract that doesn't bundle a key, or any install where the soft-fail nag is noise. The daily heartbeat still fires regardless; this only governs the notice surface. Backed by a new option `training_videos_license_required` and a helper `training_videos_license_required()` consumed by `training_videos_license_admin_notice()`.
+
 ## [1.4.7] — 2026-04-29
 
 ### Fixed

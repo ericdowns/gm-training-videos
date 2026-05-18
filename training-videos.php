@@ -3,7 +3,7 @@
  * Plugin Name: Training Videos
  * Plugin URI: https://grainandmortar.com
  * Description: A custom plugin made by Grain & Mortar that displays training videos.
- * Version: 1.4.7
+ * Version: 1.4.8
  * Author: Grain & Mortar | Technical Director - Eric Downs (eric@grainandmortar.com)
  * Author URI: https://grainandmortar.com
  * License: Grain & Mortar 
@@ -236,6 +236,7 @@ function training_videos_register_settings() {
     register_setting( 'training_videos_settings', 'training_videos_brand_primary' );
     register_setting( 'training_videos_settings', 'training_videos_brand_secondary' );
     register_setting( 'training_videos_settings', TRAINING_VIDEOS_LICENSE_OPTION );
+    register_setting( 'training_videos_settings', TRAINING_VIDEOS_LICENSE_REQUIRED_OPT );
     foreach ( training_videos_brand_fields() as $field ) {
         register_setting( 'training_videos_settings', $field['option'] );
     }
@@ -288,6 +289,10 @@ function training_videos_settings_page_html() {
         // triggers a fresh validation in inc/license.php.
         $license_key = sanitize_text_field( $_POST['training_videos_license_key'] ?? '' );
         update_option( TRAINING_VIDEOS_LICENSE_OPTION, $license_key );
+
+        // License required toggle — checkbox is absent from POST when unchecked.
+        $license_required = isset( $_POST['training_videos_license_required'] ) ? '1' : '';
+        update_option( TRAINING_VIDEOS_LICENSE_REQUIRED_OPT, $license_required );
 
         // Brand Colors — primary + secondary drive the auto-derivation.
         $primary   = training_videos_sanitize_hex_color( $_POST['brand_primary'] ?? '' );
@@ -522,9 +527,10 @@ function training_videos_settings_page_html() {
                 </header>
 
                 <?php
-                $license_key    = (string) get_option( TRAINING_VIDEOS_LICENSE_OPTION, '' );
-                $license_status = training_videos_get_license_status();
-                $checked_at     = (int) get_option( TRAINING_VIDEOS_LICENSE_CHECKED_OPT, 0 );
+                $license_key      = (string) get_option( TRAINING_VIDEOS_LICENSE_OPTION, '' );
+                $license_required = training_videos_license_required();
+                $license_status   = training_videos_get_license_status();
+                $checked_at       = (int) get_option( TRAINING_VIDEOS_LICENSE_CHECKED_OPT, 0 );
                 $status_styles  = array(
                     'active'      => array( 'bg' => '#d1f4d1', 'fg' => '#1f6f1f', 'label' => '✓ Active' ),
                     'invalid'     => array( 'bg' => '#fce4e4', 'fg' => '#a01010', 'label' => '✗ Invalid or expired' ),
@@ -535,6 +541,20 @@ function training_videos_settings_page_html() {
                 ?>
 
                 <table class="form-table">
+                    <tr>
+                        <th scope="row">Require license</th>
+                        <td>
+                            <label>
+                                <input type="checkbox"
+                                       id="training_videos_license_required"
+                                       name="training_videos_license_required"
+                                       value="1"
+                                       <?php checked( $license_required ); ?>>
+                                Require a license key on this install
+                            </label>
+                            <p class="description">Uncheck to silence the unlicensed/invalid admin nag. The daily heartbeat still runs; this only governs the notice.</p>
+                        </td>
+                    </tr>
                     <tr>
                         <th scope="row"><label for="training_videos_license_key">License key</label></th>
                         <td>
