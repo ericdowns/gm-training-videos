@@ -80,6 +80,27 @@ Plugins are typically deployed by copying the folder, not submodules.
 3. **Bump version** when making changes (see Versioning section)
 4. **Deploy to sites** by copying the updated plugin folder
 5. **Site-specific settings** (resource URL, etc.) stay in the database - not in code
+6. **Shipped code must never reference a file the release zip excludes** — see below.
+
+### Rule 6: the release-exclude trap
+
+`.github/workflows/release.yml` strips the dev helpers from the release zip (`create-sample-videos.php`, `check-video*.php`, `test-*.php`, `update-videos.php`, `flush-rewrite.php`, `*.md` except CHANGELOG/README). Those files **do not exist on any site installed from a GitHub Release** — which, since v1.4.4, is every site.
+
+So: **nothing in `training-videos.php`, `inc/*`, or `templates/*` may `include`, `require`, or link to a path on that exclude list.** It will work perfectly on the symlinked dev site and fail on every client install.
+
+This is not hypothetical. v1.4.9 fixed exactly this bug: the empty-state admin notice rendered a "Create 12 Sample Videos" button whose handler `include_once`'d `create-sample-videos.php`. Dead on every release install since 1.4.4, printing two PHP warnings on click. It went unnoticed because the dev site is a **symlink to this repo**, where the excluded files are all present.
+
+**Before shipping, if you add or move a `require`/`include`:**
+
+```bash
+# Every path the plugin includes must survive the release exclude list.
+grep -rnE "(include|require)(_once)?\s*\(?\s*(plugin_dir_path|__DIR__|dirname)" \
+  training-videos.php inc/ templates/
+```
+
+Cross-check each hit against the `rsync --exclude-from` block in `release.yml`. Same rule applies to the reverse direction: if you add a filename to the exclude list, grep for references to it first.
+
+**Dev-only helpers are fine — just don't wire them into the UI.** Run them with `wp eval-file <file>.php` instead.
 
 ---
 
