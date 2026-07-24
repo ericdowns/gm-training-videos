@@ -3,7 +3,7 @@
  * Plugin Name: Training Videos
  * Plugin URI: https://grainandmortar.com
  * Description: A custom plugin made by Grain & Mortar that displays training videos.
- * Version: 1.4.8
+ * Version: 1.4.9
  * Author: Grain & Mortar | Technical Director - Eric Downs (eric@grainandmortar.com)
  * Author URI: https://grainandmortar.com
  * License: Grain & Mortar 
@@ -1261,58 +1261,39 @@ add_action( 'admin_bar_menu', 'training_videos_admin_bar_link', 100 );
 // ADMIN NOTICES
 // ============================================================================
 
-// Add admin notice for creating sample videos
+// Empty-state notice — point at the Onboarding wizard's bulk importer.
 function training_videos_admin_notices() {
-    if (current_user_can('manage_options')) {
-        $screen = get_current_screen();
-        if ($screen && $screen->post_type === 'training_videos') {
-            $count = wp_count_posts('training_videos');
-            if ($count->publish == 0) {
-                ?>
-                <div class="notice notice-info is-dismissible">
-                    <p>
-                        <strong>No training videos found!</strong> 
-                        Would you like to create sample training videos for testing? 
-                        <a href="<?php echo admin_url('edit.php?post_type=training_videos&create_samples=1'); ?>" class="button button-primary" style="margin-left: 10px;">
-                            Create 12 Sample Videos
-                        </a>
-                    </p>
-                </div>
-                <?php
-            }
-        }
-    }
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
+	$screen = get_current_screen();
+	if ( ! $screen || 'training_videos' !== $screen->post_type ) {
+		return;
+	}
+
+	// Don't stack on top of the wizard itself.
+	if ( isset( $_GET['page'] ) && 'training-videos-onboarding' === $_GET['page'] ) {
+		return;
+	}
+
+	$count = wp_count_posts( 'training_videos' );
+	if ( empty( $count->publish ) && empty( $count->draft ) ) {
+		$onboarding_url = admin_url( 'edit.php?post_type=training_videos&page=training-videos-onboarding' );
+		?>
+		<div class="notice notice-info is-dismissible">
+			<p>
+				<strong>No training videos yet.</strong>
+				Import your Loom videos to get started &mdash; paste a list of share URLs and the wizard creates a post for each one.
+				<a href="<?php echo esc_url( $onboarding_url ); ?>" class="button button-primary" style="margin-left: 10px;">
+					Go to Onboarding
+				</a>
+			</p>
+		</div>
+		<?php
+	}
 }
 add_action('admin_notices', 'training_videos_admin_notices');
-
-// Handle sample video creation
-function handle_sample_video_creation() {
-    if (current_user_can('manage_options') && isset($_GET['create_samples']) && $_GET['create_samples'] == '1') {
-        // Include the sample creation file
-        include_once(plugin_dir_path(__FILE__) . 'create-sample-videos.php');
-        
-        // Create the videos
-        if (function_exists('create_sample_training_videos')) {
-            create_sample_training_videos();
-            
-            // Redirect back without the parameter
-            wp_redirect(admin_url('edit.php?post_type=training_videos&samples_created=1'));
-            exit;
-        }
-    }
-    
-    // Show success message
-    if (isset($_GET['samples_created']) && $_GET['samples_created'] == '1') {
-        add_action('admin_notices', function() {
-            ?>
-            <div class="notice notice-success is-dismissible">
-                <p><strong>Success!</strong> Sample training videos have been created. <a href="<?php echo get_post_type_archive_link('training_videos'); ?>" target="_blank">View them on the frontend →</a></p>
-            </div>
-            <?php
-        });
-    }
-}
-add_action('admin_init', 'handle_sample_video_creation');
 
 
 

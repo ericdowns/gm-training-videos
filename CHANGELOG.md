@@ -4,6 +4,15 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.4.9] — 2026-07-24
+
+### Fixed
+- **PHP warnings on the Training Videos admin list ("Failed to open stream: create-sample-videos.php").** The empty-state admin notice rendered a "Create 12 Sample Videos" button whose `admin_init` handler `include_once`'d `create-sample-videos.php` — a repo-only dev helper that `.github/workflows/release.yml` deliberately excludes from the release zip. On every site installed from a GitHub Release the button was dead: two `include_once` warnings printed at the top of the admin page and no videos were created. Surfaced on Family Service Lincoln (1.4.8).
+
+### Changed
+- **Empty-state notice now points at the Onboarding wizard.** Replaced the sample-videos button with "Go to Onboarding," which is the real path for a site with no videos (paste Loom share URLs → a post per video). Removed `handle_sample_video_creation()`, its `admin_init` hook, and the `samples_created` success notice. Also suppresses the notice while the wizard itself is open, and counts drafts as well as published so a site mid-import stops being told it has nothing.
+- The 12 samples were fake content pointing at generic YouTube tutorials, not the client's Looms — one click from publishing on a live site. `create-sample-videos.php` stays in the repo as a dev-only seeder (`wp eval-file create-sample-videos.php`) and stays out of the zip. `check-videos.php` updated to print that command instead of the removed button.
+
 ## [1.4.8] — 2026-05-18
 
 ### Added

@@ -24,10 +24,9 @@ if (count($videos) > 0) {
     }
 } else {
     echo "No training videos found!\n";
-    echo "\nTo create sample videos:\n";
-    echo "1. Go to WP Admin > Training Videos\n";
-    echo "2. Click 'Create 12 Sample Videos' button\n";
-    echo "OR\n";
-    echo "Visit: " . admin_url('edit.php?post_type=training_videos&create_samples=1') . "\n";
+    echo "\nTo import real videos, use the Onboarding wizard:\n";
+    echo admin_url('edit.php?post_type=training_videos&page=training-videos-onboarding') . "\n";
+    echo "\nTo seed the 12 dev samples (repo-only helper, not in the release zip):\n";
+    echo "wp eval-file create-sample-videos.php\n";
 }
 ?>
