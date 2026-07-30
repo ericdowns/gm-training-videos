@@ -3,7 +3,7 @@
  * Plugin Name: Training Videos
  * Plugin URI: https://grainandmortar.com
  * Description: A custom plugin made by Grain & Mortar that displays training videos.
- * Version: 1.4.9
+ * Version: 1.4.10
  * Author: Grain & Mortar | Technical Director - Eric Downs (eric@grainandmortar.com)
  * Author URI: https://grainandmortar.com
  * License: Grain & Mortar 
@@ -123,7 +123,9 @@ function create_training_videos_post_type() {
         'supports' => array( 'title', 'thumbnail' ),
         'publicly_queryable' => true,
         'exclude_from_search' => true, // Add this line to exclude from search
-        'noindex' => true, // Add this line to add "noindex" meta tag
+        // NOTE: 'noindex' is NOT a register_post_type() argument. WordPress
+        // silently ignores it, so this never did anything. Search-engine
+        // exclusion is handled by training_videos_block_search_indexing().
         'menu_order' => true, // Add this line to support menu order
         'show_in_menu' => true, // Add this line to show in admin menu
 
@@ -132,6 +134,49 @@ function create_training_videos_post_type() {
     register_post_type( 'training_videos', $args ); // Register the post type
 }
 add_action( 'init', 'create_training_videos_post_type' );
+
+/**
+ * Keep the gated training library out of search engines.
+ *
+ * The library is login-walled (see templates/single-training_videos.php and
+ * templates/archive-training_videos.php), so a crawler only ever receives the
+ * 302 to wp-login.php. Listing those URLs in the sitemap invites Google to
+ * crawl pages it can never read, which comes back as redirect / soft-404
+ * errors in Search Console.
+ *
+ * Two things were supposed to prevent that and neither worked:
+ *
+ *   1. `'noindex' => true` in the register_post_type() args — not a real
+ *      argument, silently ignored by WordPress.
+ *   2. The <meta name="robots"> tag in templates/training-header.php — it
+ *      renders AFTER the is_user_logged_in() gate, so a logged-out crawler is
+ *      redirected before the tag is ever output.
+ *
+ * The X-Robots-Tag header below is the one that actually reaches a bot,
+ * because it travels on the redirect itself.
+ *
+ * @since 1.4.10
+ */
+function training_videos_block_search_indexing() {
+	// 1. Drop the post type from the Yoast XML sitemap.
+	add_filter( 'wpseo_sitemap_exclude_post_type', function ( $excluded, $post_type ) {
+		return ( 'training_videos' === $post_type ) ? true : $excluded;
+	}, 10, 2 );
+
+	// 2. Same for core's sitemap provider, in case Yoast is not active.
+	add_filter( 'wp_sitemaps_post_types', function ( $post_types ) {
+		unset( $post_types['training_videos'] );
+		return $post_types;
+	} );
+
+	// 3. Send noindex as a real header so it survives the login redirect.
+	add_action( 'template_redirect', function () {
+		if ( is_singular( 'training_videos' ) || is_post_type_archive( 'training_videos' ) ) {
+			header( 'X-Robots-Tag: noindex, nofollow', true );
+		}
+	}, 1 );
+}
+add_action( 'init', 'training_videos_block_search_indexing' );
 
 
 

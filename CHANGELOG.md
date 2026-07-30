@@ -4,6 +4,20 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.4.10] — 2026-07-30
+
+### Fixed
+- **The gated library was being advertised to Google.** Every training video URL was listed in the XML sitemap while being login-walled, so a crawler only ever received the 302 to `wp-login.php` — reported back as redirect / soft-404 errors in Search Console. Found on Within Reach (13 URLs in `training_videos-sitemap.xml`, no effective noindex).
+- **`'noindex' => true` in the `register_post_type()` args never did anything.** It is not a real argument; WordPress silently ignores unknown keys, so the line had been dead since it was written.
+- **The `<meta name="robots">` tag in `templates/training-header.php` cannot work for this post type.** It renders *after* the `is_user_logged_in()` gate, so a logged-out crawler is redirected before the tag is ever output. Left in place for logged-in views, but it is not what protects us.
+
+### Added
+- `training_videos_block_search_indexing()` — excludes the post type from the Yoast sitemap (`wpseo_sitemap_exclude_post_type`) and core's sitemap provider (`wp_sitemaps_post_types`), and sends `X-Robots-Tag: noindex, nofollow` on `template_redirect`. The header is the piece that actually reaches a bot, because it travels on the redirect itself.
+
+### Notes
+- No new `include`/`require`, so Golden Rule 6 is unaffected.
+- Sites already installed will pick this up through the normal update flow. Verify afterwards with `curl -sI <site>/training-videos/` — expect `x-robots-tag: noindex, nofollow` — and confirm `<site>/training_videos-sitemap.xml` returns 404.
+
 ## [1.4.9] — 2026-07-24
 
 ### Fixed
