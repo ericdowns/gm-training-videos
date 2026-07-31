@@ -62,10 +62,30 @@ jobs:
           ls -lh "$ZIP_NAME"
           echo "ZIP_NAME=$ZIP_NAME" >> "$GITHUB_ENV"
 
+      - name: Pull this version's notes out of CHANGELOG.md
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          # Grab everything between this version's heading and the next one.
+          awk -v ver="$TAG_VERSION" '
+            $0 ~ "^## \\[" ver "\\]" { grab = 1; next }
+            grab && /^## \[/            { exit }
+            grab                        { print }
+          ' CHANGELOG.md > /tmp/relnotes.md
+
+          # Fall back to auto-generated notes if the changelog entry is missing.
+          if [ ! -s /tmp/relnotes.md ]; then
+            echo "::warning::No CHANGELOG.md entry found for ${TAG_VERSION}; falling back to generated notes."
+            echo "AUTO_NOTES=true" >> "$GITHUB_ENV"
+          else
+            echo "AUTO_NOTES=false" >> "$GITHUB_ENV"
+            echo "--- release notes ---"; cat /tmp/relnotes.md
+          fi
+
       - name: Create / update GitHub Release with the zip attached
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ env.ZIP_NAME }}
           name: ${{ github.ref_name }}
-          generate_release_notes: true
+          body_path: ${{ env.AUTO_NOTES == 'false' && '/tmp/relnotes.md' || '' }}
+          generate_release_notes: ${{ env.AUTO_NOTES == 'true' }}
           fail_on_unmatched_files: true
