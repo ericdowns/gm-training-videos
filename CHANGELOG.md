@@ -4,6 +4,19 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.4.11] — 2026-07-31
+
+### Added
+- **`Requires at least` and `Requires PHP` headers.** The plugin declared neither, so WordPress had no way to stop it being installed or updated on an environment that cannot run it. With these present WordPress refuses activation and greys out the update button instead of letting a site break. Closest thing to a real safety interlock, and it costs nothing at runtime.
+
+### Notes on the numbers
+- **`Requires PHP: 7.0`** is a hard floor, not a preference. The bundled `plugin-update-checker` (v5p6) uses the `??` operator, which is a parse error on PHP 5.x — the plugin would fatal on load. 7.0 is exactly the point where that stops.
+- **`Requires at least: 5.5`** is where `wp_sitemaps_post_types` (used by the v1.4.10 indexing fix) first exists. On older WordPress that `add_filter` is a harmless no-op, so this is a soft floor recorded for accuracy rather than a hard requirement.
+- Deliberately **not** set to a stricter "we don't support end-of-life PHP" number. A higher floor would block older sites from receiving the v1.4.10 search-indexing fix, which is the opposite of useful. The floors here block only environments where the plugin genuinely cannot run.
+
+### Context
+- There is no self-disable-on-failed-update mechanism in this plugin, and it does not need one. WordPress core already covers the realistic failure modes: update rollback from a temp backup on a failed update (6.3+), and fatal-error protection that pauses a plugin and emails a recovery link if it throws on load (5.2+). What none of that catches is a non-fatal logic bug, which is what 1.4.10 fixed.
+
 ## [1.4.10] — 2026-07-30
 
 ### Fixed
