@@ -49,6 +49,28 @@ Contact & Organization", "Events > Add New Event", "Pages > Donate").
 
 ## 4. Rulings that stand
 
+> **CORRECTION, Eric, 2026-09-20, mid-round:** *"Since it's going to be integrated into the
+> WordPress dashboard, honestly, the dashboard experience can just follow WordPress styling if
+> that's easiest."*
+>
+> **The library lives inside wp-admin, not on the front end.** So surfaces A and B follow
+> **native WordPress admin styling**: postbox panels, `wp-list-table`, the standard notice
+> patterns, `button-primary`/`button-secondary`, the admin type scale and greys. This supersedes
+> rulings 1, 2 and 6 below for those two surfaces. They are no longer drawn twice in two client
+> brands, and no longer worked in the seven derived roles.
+>
+> This is better rather than merely easier: it is native, so anyone who can use WordPress can
+> already use it, and it **inherits** WordPress's admin design, so when WordPress changes its
+> chrome the library moves with it instead of drifting. Drifting when WordPress updates is one
+> of the exact failure modes this product exists to fix.
+>
+> One nuance left open: a single restrained accent from the client's `accent` role on headings,
+> active nav and progress, the way WordPress admin colour schemes already do. Drawn both ways so
+> Eric can pick. Never a full skin.
+>
+> **Surface C, the G&M operator panel, is unchanged** and stays on Graphite Signal. The rulings
+> below stand for it, and for any future front-end rendering of a lesson.
+
 1. **Brand comes from the client, not from us.** The plugin derives a full palette from **two**
    hex values the client gives at onboarding, through `inc/brand-derive.php`, producing seven
    semantic roles: `accent`, `accent_alt`, `bg`, `card_bg`, `border`, `heading`, `text`. There is
