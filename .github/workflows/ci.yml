@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rule6:
+    name: Rule 6 — shipped code never references a release-excluded file
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: none
+          coverage: none
+
+      # Stages the plugin with the exclude list read from release.yml, then
+      # fails if training-videos.php, inc/*, templates/*, assets/* or css/*
+      # include, require or link a path that is not in the zip.
+      - name: Check shipped code against the release exclude list
+        run: php .github/scripts/check-release-excludes.php
+
+      # Guards the guard: replay the v1.4.9 bug into a scratch copy and make
+      # sure the checker still fails on it. Its ::error lines are muted so the
+      # deliberate violation doesn't annotate the PR.
+      - name: Canary — checker still catches the v1.4.9 bug
+        run: |
+          CANARY="$RUNNER_TEMP/canary"
+          rsync -a --exclude .git ./ "$CANARY/"
+          printf '\n%s\n' "include_once plugin_dir_path( dirname( __FILE__ ) ) . 'create-sample-videos.php';" >> "$CANARY/inc/onboarding.php"
+          if php .github/scripts/check-release-excludes.php "$CANARY" > "$RUNNER_TEMP/canary.log" 2>&1; then
+            sed 's/^::/  /' "$RUNNER_TEMP/canary.log"
+            echo "::error::The Rule 6 checker passed a deliberate include of create-sample-videos.php. The check has gone blind; fix .github/scripts/check-release-excludes.php."
+            exit 1
+          fi
+          grep -q "create-sample-videos.php" "$RUNNER_TEMP/canary.log"
+          echo "Canary caught as expected:"
+          grep '^::error' "$RUNNER_TEMP/canary.log" | sed 's/^::error/  error/'
