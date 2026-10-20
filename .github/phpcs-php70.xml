@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<ruleset name="TrainingVideos-PHP70"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+    <description>PHP 7.0+ compatibility scan of the code that ships in the release zip.</description>
+
+    <!-- Paths in <file> and basepath are relative to THIS file (.github/). -->
+    <file>../training-videos.php</file>
+    <file>../inc</file>
+    <file>../templates</file>
+
+    <arg name="extensions" value="php"/>
+    <arg name="basepath" value=".."/>
+    <arg value="sp"/>
+    <arg name="colors"/>
+
+    <!-- "Requires PHP: 7.0" in the plugin header. -->
+    <config name="testVersion" value="7.0-"/>
+
+    <!--
+    Plain PHPCompatibility, NOT PHPCompatibilityWP: PHPCompatibilityWP excludes
+    str_contains/str_starts_with/str_ends_with/array_key_first/array_key_last
+    (polyfilled only from WP 5.9) and array_is_list (WP 6.5). This plugin
+    supports WP 5.5, so those polyfills cannot be relied on.
+    -->
+    <rule ref="PHPCompatibility">
+        <!-- Polyfilled in wp-includes/compat.php since WP 4.9.6 (< our WP 5.5 floor),
+             and native from PHP 7.3 / 7.1 anyway. -->
+        <exclude name="PHPCompatibility.FunctionUse.NewFunctions.is_countableFound"/>
+        <exclude name="PHPCompatibility.FunctionUse.NewFunctions.is_iterableFound"/>
+    </rule>
+</ruleset>

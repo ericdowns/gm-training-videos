@@ -46,3 +46,57 @@ jobs:
           grep -q "create-sample-videos.php" "$RUNNER_TEMP/canary.log"
           echo "Canary caught as expected:"
           grep '^::error' "$RUNNER_TEMP/canary.log" | sed 's/^::error/  error/'
+
+  php70:
+    name: PHP 7.0 compatibility
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+          coverage: none
+
+      # Installed outside the repo so no composer.json / vendor/ lands in the
+      # release zip. installed_paths is set explicitly instead of relying on the
+      # dealerdirect composer plugin. Versions pinned: 10.x is still alpha, but
+      # 9.3.5 (2019) misses arrow fns, match, ?->, str_contains and friends.
+      - name: Install PHPCS + PHPCompatibility
+        run: |
+          mkdir -p "$RUNNER_TEMP/phpcs" && cd "$RUNNER_TEMP/phpcs"
+          echo '{}' > composer.json
+          composer require --no-interaction --no-progress \
+            squizlabs/php_codesniffer:3.13.6 \
+            phpcompatibility/php-compatibility:10.0.0-alpha2 \
+            phpcsstandards/phpcsutils:1.2.3
+          vendor/bin/phpcs --config-set installed_paths \
+            "$RUNNER_TEMP/phpcs/vendor/phpcompatibility/php-compatibility,$RUNNER_TEMP/phpcs/vendor/phpcsstandards/phpcsutils"
+          vendor/bin/phpcs -i
+
+      # training-videos.php, inc/, templates/ — see .github/phpcs-php70.xml.
+      # Errors and warnings both fail.
+      - name: PHPCompatibility scan (first-party, testVersion 7.0-)
+        run: '"$RUNNER_TEMP/phpcs/vendor/bin/phpcs" --standard=.github/phpcs-php70.xml'
+
+      # The bundled plugin-update-checker ships too. Its only 10.x findings are
+      # forward-compat notes (htmlentities() default flags changed in 8.1,
+      # E_USER_ERROR deprecated in 8.4) that don't affect PHP 7.0, so those two
+      # sniffs are excluded here and nothing else.
+      - name: PHPCompatibility scan (bundled vendor/plugin-update-checker)
+        run: |
+          "$RUNNER_TEMP/phpcs/vendor/bin/phpcs" --standard=.github/phpcs-php70.xml \
+            vendor/plugin-update-checker \
+            --exclude=PHPCompatibility.ParameterValues.NewHTMLEntitiesFlagsDefault,PHPCompatibility.ParameterValues.RemovedTriggerErrorLevel
+
+      # Ground truth for syntax: parse every shipped PHP file with a real
+      # PHP 7.0 interpreter. Run via `docker run`, not a job container — the
+      # Debian 9 image's glibc is too old for actions/checkout's Node.
+      - name: Lint shipped PHP with a real PHP 7.0
+        run: |
+          docker run --rm -v "$PWD:/app:ro" -w /app \
+            php:7.0-cli@sha256:950fa73e35e650ee1d5fff5b053feadcd1dc8c6e83bba07d6c7fd17c44868e22 \
+            sh -c 'php -v | head -1 && find training-videos.php inc templates vendor/plugin-update-checker -name "*.php" -print0 | xargs -0 -n1 php -l'
