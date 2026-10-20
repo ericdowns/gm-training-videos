@@ -62,13 +62,15 @@ jobs:
           coverage: none
 
       # Installed outside the repo so no composer.json / vendor/ lands in the
-      # release zip. installed_paths is set explicitly instead of relying on the
-      # dealerdirect composer plugin. Versions pinned: 10.x is still alpha, but
-      # 9.3.5 (2019) misses arrow fns, match, ?->, str_contains and friends.
+      # release zip. PHPCompatibility 10 pulls in the dealerdirect composer
+      # plugin; it's explicitly disabled and installed_paths set by hand instead.
+      # Versions pinned: 10.x is still alpha, but 9.3.5 (2019) misses arrow fns,
+      # match, ?->, str_contains and friends.
       - name: Install PHPCS + PHPCompatibility
         run: |
           mkdir -p "$RUNNER_TEMP/phpcs" && cd "$RUNNER_TEMP/phpcs"
           echo '{}' > composer.json
+          composer config allow-plugins.dealerdirect/phpcodesniffer-composer-installer false
           composer require --no-interaction --no-progress \
             squizlabs/php_codesniffer:3.13.6 \
             phpcompatibility/php-compatibility:10.0.0-alpha2 \
