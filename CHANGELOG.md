@@ -4,6 +4,9 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+### CI
+- **`.github/workflows/ci.yml` on every pull request.** Two jobs: *Rule 6* stages the plugin with `release.yml`'s own exclude list and fails if shipped code includes, requires or links a file the zip strips (the v1.4.9 `create-sample-videos.php` bug, replayed as a canary on every run); *PHP 7.0 compatibility* runs PHPCompatibility (`testVersion 7.0-`) and a real PHP 7.0 `php -l` over everything that ships. Repo-only — `.github/` is not in the zip, so no version bump.
+
 ## [1.4.11] — 2026-07-31
 
 ### Added
