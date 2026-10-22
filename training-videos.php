@@ -3,7 +3,7 @@
  * Plugin Name: Training Videos
  * Plugin URI: https://grainandmortar.com
  * Description: A custom plugin made by Grain & Mortar that displays training videos.
- * Version: 1.4.11
+ * Version: 1.4.12
  * Requires at least: 5.5
  * Requires PHP: 7.0
  * Author: Grain & Mortar | Technical Director - Eric Downs (eric@grainandmortar.com)
@@ -1341,6 +1341,46 @@ function training_videos_admin_notices() {
 	}
 }
 add_action('admin_notices', 'training_videos_admin_notices');
+
+// ============================================================================
+// LIST SCREEN - "View on site" button
+// ============================================================================
+
+/**
+ * Adds a "View on site" button beside "Add New" on the Training Videos list,
+ * so the team can go straight from the admin list to the library as the
+ * client sees it. Core has no hook for the title buttons, so a script places it.
+ */
+function training_videos_view_on_site_button() {
+	$screen = get_current_screen();
+	if ( ! $screen || 'edit-training_videos' !== $screen->id ) {
+		return;
+	}
+
+	$url = get_post_type_archive_link( 'training_videos' );
+	if ( ! $url ) {
+		return;
+	}
+	?>
+	<script>
+	( function () {
+		var heading = document.querySelector( '.wrap .wp-heading-inline' );
+		if ( ! heading ) {
+			return;
+		}
+		var actions = heading.parentNode.querySelectorAll( '.page-title-action' );
+		var link = document.createElement( 'a' );
+		link.className = 'page-title-action';
+		link.href = <?php echo wp_json_encode( $url ); ?>;
+		link.target = '_blank';
+		link.rel = 'noopener';
+		link.textContent = 'View on site';
+		( actions.length ? actions[ actions.length - 1 ] : heading ).insertAdjacentElement( 'afterend', link );
+	} )();
+	</script>
+	<?php
+}
+add_action( 'admin_footer', 'training_videos_view_on_site_button' );
 
 
 

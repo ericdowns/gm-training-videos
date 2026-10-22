@@ -4,6 +4,11 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 
 ## [Unreleased]
 
+## [1.4.12] — 2026-10-22
+
+### Added
+- **"View on site" button on the Training Videos list.** It sits beside "Add New" and opens the library on the site in a new tab, so the team can check the videos as the client sees them. Asked for by Eric on Grace Valley, 2026-10-22.
+
 ## [1.4.11] — 2026-07-31
 
 ### Added
