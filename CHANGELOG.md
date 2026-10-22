@@ -7,6 +7,11 @@ All notable changes to the Training Videos plugin. Versions follow [Semantic Ver
 ### CI
 - **`.github/workflows/ci.yml` on every pull request.** Two jobs: *Rule 6* stages the plugin with `release.yml`'s own exclude list and fails if shipped code includes, requires or links a file the zip strips (the v1.4.9 `create-sample-videos.php` bug, replayed as a canary on every run); *PHP 7.0 compatibility* runs PHPCompatibility (`testVersion 7.0-`) and a real PHP 7.0 `php -l` over everything that ships. Repo-only — `.github/` is not in the zip, so no version bump.
 
+## [1.4.12] — 2026-10-22
+
+### Added
+- **"View on site" button on the Training Videos list.** It sits beside "Add New" and opens the library on the site in a new tab, so the team can check the videos as the client sees them. Asked for by Eric on Grace Valley, 2026-10-22.
+
 ## [1.4.11] — 2026-07-31
 
 ### Added
